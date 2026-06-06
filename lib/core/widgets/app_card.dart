@@ -162,12 +162,12 @@ class AppGlassCard extends StatelessWidget {
     return Container(
       margin: margin,
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest.withOpacity(0.9),
+        color: AppColors.surfaceContainerLowest.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(
           borderRadius ?? AppDimensions.radiusMd,
         ),
         border: Border.all(
-          color: AppColors.outlineVariant.withOpacity(0.15),
+          color: AppColors.outlineVariant.withValues(alpha: 0.15),
           width: AppDimensions.ghostBorderWidth,
         ),
       ),
@@ -177,7 +177,7 @@ class AppGlassCard extends StatelessWidget {
         ),
         child: BackdropFilter(
           filter: ColorFilter.mode(
-            Colors.white.withOpacity(0.1),
+            Colors.white.withValues(alpha: 0.1),
             BlendMode.lighten,
           ),
           child: Padding(
@@ -274,7 +274,7 @@ class AppOutlinedCard extends StatelessWidget {
           borderRadius ?? AppDimensions.radiusMd,
         ),
         border: Border.all(
-          color: AppColors.outlineVariant.withOpacity(0.15),
+          color: AppColors.outlineVariant.withValues(alpha: 0.15),
           width: AppDimensions.ghostBorderWidth,
         ),
       ),

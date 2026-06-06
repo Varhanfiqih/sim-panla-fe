@@ -70,12 +70,13 @@ class ScheduleItem {
   factory ScheduleItem.fromJson(Map<String, dynamic> json) {
     JournalStatus status;
     final statusStr = json['status_jurnal']?.toString();
-    if (statusStr == 'DONE')
+    if (statusStr == 'DONE') {
       status = JournalStatus.done;
-    else if (statusStr == 'OPEN')
+    } else if (statusStr == 'OPEN') {
       status = JournalStatus.open;
-    else
+    } else {
       status = JournalStatus.locked;
+    }
 
     return ScheduleItem(
       id: _toInt(json['id']),

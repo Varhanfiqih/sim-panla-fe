@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -152,7 +151,7 @@ class _InvalPageState extends State<InvalPage> {
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.5,
-                  color: AppColors.primary.withOpacity(0.6),
+                  color: AppColors.primary.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(height: 4),
@@ -177,7 +176,7 @@ class _InvalPageState extends State<InvalPage> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.2),
+                color: AppColors.primary.withValues(alpha: 0.2),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -197,15 +196,19 @@ class _InvalPageState extends State<InvalPage> {
   }
 
   Widget _buildStatsOverview(List<InvalClass> classes) {
-    // Mock calculate total hours (assuming 1.5h per class)
-    final totalHours = classes.length * 1.5;
+    final totalMinutes = classes.fold<int>(
+      0,
+      (total, item) => total + item.durationMinutes,
+    );
+    final totalHours = totalMinutes / 60;
+    final hasUrgent = classes.any(_isUrgent);
 
     return Row(
       children: [
         Expanded(
           child: _buildStatCard(
             title: 'Total Jam',
-            value: '${totalHours}h',
+            value: '${totalHours.toStringAsFixed(1)}h',
             iconData: Icons.schedule_rounded,
             valueColor: AppColors.primary,
           ),
@@ -214,9 +217,15 @@ class _InvalPageState extends State<InvalPage> {
         Expanded(
           child: _buildStatCard(
             title: 'Kebutuhan',
-            value: 'Urgent',
+            value: classes.isEmpty
+                ? 'Aman'
+                : hasUrgent
+                ? 'Urgent'
+                : 'Tersedia',
             iconData: Icons.emergency_rounded,
-            valueColor: const Color(0xFF7A1BC8), // Tertiary
+            valueColor: classes.isEmpty
+                ? const Color(0xFF198754)
+                : const Color(0xFF7A1BC8),
           ),
         ),
       ],
@@ -267,7 +276,7 @@ class _InvalPageState extends State<InvalPage> {
             child: Icon(
               iconData,
               size: 72,
-              color: AppColors.onSurfaceVariant.withOpacity(0.05),
+              color: AppColors.onSurfaceVariant.withValues(alpha: 0.05),
             ),
           ),
         ],
@@ -356,46 +365,62 @@ class _InvalPageState extends State<InvalPage> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade100,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                _subjectTag(item.subject).toUpperCase(),
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
-                  color: Colors.blue.shade700,
-                ),
+            Flexible(
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade100,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      _subjectTag(item.subject).toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade100,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      'CLAIMED',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.green.shade100,
-                borderRadius: BorderRadius.circular(16),
-              ),
+            Flexible(
               child: Text(
-                'CLAIMED',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
-                  color: Colors.green.shade700,
+                item.time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primary,
                 ),
-              ),
-            ),
-            const Spacer(),
-            Text(
-              item.time,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                color: AppColors.primary,
               ),
             ),
           ],
@@ -403,6 +428,8 @@ class _InvalPageState extends State<InvalPage> {
         const SizedBox(height: 8),
         Text(
           item.subject,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: GoogleFonts.plusJakartaSans(
             fontSize: 20,
             fontWeight: FontWeight.w800,
@@ -418,12 +445,16 @@ class _InvalPageState extends State<InvalPage> {
               color: AppColors.onSurfaceVariant,
             ),
             const SizedBox(width: 4),
-            Text(
-              item.className,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.onSurfaceVariant,
+            Flexible(
+              child: Text(
+                item.className,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.onSurfaceVariant,
+                ),
               ),
             ),
           ],
@@ -466,9 +497,9 @@ class _InvalPageState extends State<InvalPage> {
       return Container(
         padding: const EdgeInsets.all(AppDimensions.spacing5),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.7),
+          color: Colors.white.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-          border: Border.all(color: const Color(0xFFC3C6D7).withOpacity(0.15)),
+          border: Border.all(color: const Color(0xFFC3C6D7).withValues(alpha: 0.15)),
           boxShadow: const [
             BoxShadow(
               color: Color(0x0F131B2E),
@@ -480,7 +511,7 @@ class _InvalPageState extends State<InvalPage> {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-          child: Container(color: Colors.white.withOpacity(0.4), child: card),
+          child: Container(color: Colors.white.withValues(alpha: 0.4), child: card),
         ),
       );
     }
@@ -499,9 +530,9 @@ class _InvalPageState extends State<InvalPage> {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.spacing5),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.7),
+        color: Colors.white.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        border: Border.all(color: const Color(0xFFC3C6D7).withOpacity(0.15)),
+        border: Border.all(color: const Color(0xFFC3C6D7).withValues(alpha: 0.15)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0F131B2E), // 6% opacity shadow
@@ -514,7 +545,7 @@ class _InvalPageState extends State<InvalPage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         child: Container(
-          color: Colors.white.withOpacity(0.4),
+          color: Colors.white.withValues(alpha: 0.4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -602,7 +633,9 @@ class _InvalPageState extends State<InvalPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -615,6 +648,8 @@ class _InvalPageState extends State<InvalPage> {
                     ),
                     child: Text(
                       _subjectTag(item.subject).toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -623,8 +658,7 @@ class _InvalPageState extends State<InvalPage> {
                       ),
                     ),
                   ),
-                  if (showUrgent) ...[
-                    const SizedBox(width: 8),
+                  if (showUrgent)
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -636,6 +670,8 @@ class _InvalPageState extends State<InvalPage> {
                       ),
                       child: Text(
                         'URGENT',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.inter(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -644,12 +680,13 @@ class _InvalPageState extends State<InvalPage> {
                         ),
                       ),
                     ),
-                  ],
                 ],
               ),
               const SizedBox(height: 8),
               Text(
                 item.subject,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -665,12 +702,16 @@ class _InvalPageState extends State<InvalPage> {
                     color: AppColors.onSurfaceVariant,
                   ),
                   const SizedBox(width: 4),
-                  Text(
-                    item.className,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.onSurfaceVariant,
+                  Flexible(
+                    child: Text(
+                      item.className,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
@@ -678,29 +719,35 @@ class _InvalPageState extends State<InvalPage> {
             ],
           ),
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              item.time,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                color: AppColors.primary,
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                item.time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primary,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'SESI X', // Could be parsed from time if needed, or added to model
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.0,
-                color: AppColors.onSurfaceVariant.withOpacity(0.6),
+              const SizedBox(height: 4),
+              Text(
+                'SESI X',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.0,
+                  color: AppColors.onSurfaceVariant.withValues(alpha: 0.6),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -798,13 +845,23 @@ class _InvalPageState extends State<InvalPage> {
   Widget _buildAvatarItem(String url, int index) {
     return Positioned(
       left: index * 20.0,
-      child: Container(
-        width: 28,
-        height: 28,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2),
-          image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
+      child: ClipOval(
+        child: SizedBox(
+          width: 28,
+          height: 28,
+          child: Image.network(
+            url,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                width: 28,
+                height: 28,
+                color: AppColors.surfaceContainerHighest,
+                alignment: Alignment.center,
+                child: const Icon(Icons.person, size: 14),
+              );
+            },
+          ),
         ),
       ),
     );

@@ -16,7 +16,6 @@ import 'features/teacher/data/repositories/inval_repository.dart';
 import 'features/teacher/data/repositories/notification_repository.dart';
 import 'features/teacher/data/repositories/permission_repository.dart';
 import 'features/teacher/presentation/bloc/bloc.dart';
-import 'features/teacher/presentation/pages/teacher_dashboard_page.dart';
 import 'features/teacher/presentation/pages/teacher_main_page.dart';
 import 'features/bk/presentation/pages/bk_dashboard_page.dart';
 
@@ -118,6 +117,15 @@ class SimPanlaApp extends StatelessWidget {
           title: 'SIM Panla',
           debugShowCheckedModeBanner: false,
           theme: _buildTheme(),
+          builder: (context, child) {
+            return SafeArea(
+              top: true,
+              bottom: true,
+              left: true,
+              right: true,
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
           home: const AuthNavigator(),
         ),
       ),
@@ -247,7 +255,7 @@ class SimPanlaApp extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
           borderSide: BorderSide(
-            color: AppColors.primary.withOpacity(0.15),
+            color: AppColors.primary.withValues(alpha: 0.15),
             width: 1,
           ),
         ),
@@ -409,7 +417,7 @@ class _SplashScreen extends StatelessWidget {
               child: CircularProgressIndicator(
                 strokeWidth: 2.5,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  AppColors.primary.withOpacity(0.7),
+                  AppColors.primary.withValues(alpha: 0.7),
                 ),
               ),
             ),

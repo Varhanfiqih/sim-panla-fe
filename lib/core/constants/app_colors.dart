@@ -90,16 +90,16 @@ class AppColors {
 
   // ============ SPECIAL EFFECTS ============
   /// Scrim for modals with blur
-  static Color scrim = const Color(0xFF000000).withOpacity(0.32);
+  static Color scrim = const Color(0xFF000000).withValues(alpha: 0.32);
 
   /// Shadow with blue tint (Y: 8px, Blur: 24px)
-  static Color shadowTinted = const Color(0xFF0040A1).withOpacity(0.06);
+  static Color shadowTinted = const Color(0xFF0040A1).withValues(alpha: 0.06);
 
   /// Primary shadow for buttons
-  static Color shadowPrimary = const Color(0xFF0040A1).withOpacity(0.12);
+  static Color shadowPrimary = const Color(0xFF0040A1).withValues(alpha: 0.12);
 
   /// Ambient shadow
-  static Color shadowAmbient = const Color(0xFF000000).withOpacity(0.04);
+  static Color shadowAmbient = const Color(0xFF000000).withValues(alpha: 0.04);
 
   // ============ GRADIENT DEFINITIONS ============
   /// Primary gradient for CTAs and hero headers

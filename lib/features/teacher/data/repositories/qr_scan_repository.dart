@@ -14,9 +14,32 @@ class QrScanRepository {
       final response = await _dioClient.dio.get('/attendance/categories');
 
       if (response.data['status'] == 'success') {
-        final List<dynamic> data = response.data['data'] ?? [];
+        final data = response.data['data'];
+        if (data is List) {
+          return data
+              .map((json) => ActivityGroup.fromJson(json))
+              .toList();
+        }
 
-        return data.map((json) => ActivityGroup.fromJson(json)).toList();
+        if (data is Map<String, dynamic>) {
+          final customTypes = _parseCustomScanTypes(data['scan_types']);
+
+          final groups = <ActivityGroup>[
+            ActivityGroup(
+              activity: 'Reguler',
+              scanTypes: _defaultRegularScanTypes(),
+            ),
+            if (customTypes.isNotEmpty)
+              ActivityGroup(
+                activity: 'Kegiatan Lainnya',
+                scanTypes: customTypes,
+              ),
+          ];
+
+          return groups;
+        }
+
+        return const [];
       } else {
         throw Exception(response.data['message'] ?? 'Failed to get categories');
       }
@@ -25,6 +48,34 @@ class QrScanRepository {
         e.response?.data['message'] ?? 'Gagal memuat kategori absensi',
       );
     }
+  }
+
+  List<AttendanceCategory> _defaultRegularScanTypes() {
+    return const [
+      AttendanceCategory(id: 'otomatis', name: 'Otomatis'),
+      AttendanceCategory(id: 'Masuk', name: 'Masuk'),
+      AttendanceCategory(id: 'Terlambat', name: 'Terlambat'),
+      AttendanceCategory(id: 'Pulang', name: 'Pulang'),
+    ];
+  }
+
+  List<AttendanceCategory> _parseCustomScanTypes(dynamic raw) {
+    final items = raw is List<dynamic> ? raw : const <dynamic>[];
+    return items
+        .map((item) {
+          if (item is Map<String, dynamic>) {
+            return AttendanceCategory.fromJson(item);
+          }
+          if (item is Map) {
+            return AttendanceCategory.fromJson(Map<String, dynamic>.from(item));
+          }
+
+          final value = item.toString().trim();
+          if (value.isEmpty) return null;
+          return AttendanceCategory(id: value, name: value);
+        })
+        .whereType<AttendanceCategory>()
+        .toList();
   }
 
   /// Submit QR scan attendance

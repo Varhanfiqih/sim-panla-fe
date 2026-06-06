@@ -9,8 +9,6 @@ import '../bloc/bloc.dart';
 import 'journal_student_list_page.dart';
 import 'journal_history_detail_page.dart';
 import 'notification_page.dart';
-import 'qr_scanner_page.dart';
-import '../bloc/qr_scan_bloc.dart';
 
 /// Schedule Page - Following stitch design (s_05_schedule_screen_new_style)
 class SchedulePage extends StatefulWidget {
@@ -21,7 +19,6 @@ class SchedulePage extends StatefulWidget {
 }
 
 class _SchedulePageState extends State<SchedulePage> {
-  int _selectedNavIndex = 1; // Calendar tab selected
   int? _notifStartedForUserId;
 
   // Colors from stitch design
@@ -190,6 +187,8 @@ class _SchedulePageState extends State<SchedulePage> {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
+                          final notificationBloc =
+                              context.read<NotificationBloc>();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -197,7 +196,7 @@ class _SchedulePageState extends State<SchedulePage> {
                             ),
                           ).then((_) {
                             if (!mounted) return;
-                            context.read<NotificationBloc>().add(
+                            notificationBloc.add(
                               const NotificationUnreadRequested(),
                             );
                           });

@@ -1,19 +1,31 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../../auth/data/models/user.dart';
+import '../../../auth/data/repositories/auth_repository.dart';
 import '../../../auth/presentation/bloc/bloc.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   static const Color _bg = Color(0xFFF3F2F9);
   static const Color _card = Color(0xFFEEF0FA);
   static const Color _text = Color(0xFF1C2435);
   static const Color _muted = Color(0xFF98A0B5);
   static const Color _primary = Color(0xFF325EEA);
   static const Color _danger = Color(0xFFE7706D);
+  final AuthRepository _authRepository = AuthRepository();
+  bool _uploadingPhoto = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +51,7 @@ class ProfilePage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildProfileHeader(user),
+          _buildProfileHeader(context, user),
           const SizedBox(height: 24),
           _buildActivePeriodCard(),
           const SizedBox(height: 22),
@@ -66,6 +78,7 @@ class ProfilePage extends StatelessWidget {
             icon: Icons.lock,
             title: 'Security/Change Password',
             subtitle: 'Manage your security settings',
+            onTap: () => _showChangePasswordDialog(context),
           ),
           const SizedBox(height: 10),
           _buildSettingTile(
@@ -79,7 +92,7 @@ class ProfilePage extends StatelessWidget {
             context: context,
             icon: Icons.info,
             title: 'About App',
-            subtitle: 'SIM Pansla v2.0.4 Scholastica',
+            subtitle: 'SIM-PANLA v2.0.1 Pasuruan',
           ),
           const SizedBox(height: 26),
           _buildLogoutButton(context),
@@ -88,8 +101,9 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHeader(User user) {
+  Widget _buildProfileHeader(BuildContext context, User user) {
     final roleLabel = user.isGuruBK ? 'GURU BK' : 'GURU MATA PELAJARAN';
+    final photoUrl = _resolvePhotoUrl(user.profilePhotoUrl);
 
     return Center(
       child: Column(
@@ -97,23 +111,37 @@ class ProfilePage extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              Container(
-                width: 104,
-                height: 104,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF5C8F8A),
-                  border: Border.all(color: const Color(0xFFE8EAF5), width: 3),
-                ),
-                child: Center(
-                  child: Text(
-                    user.shortName.substring(0, 1).toUpperCase(),
-                    style: GoogleFonts.plusJakartaSans(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 34,
+              InkWell(
+                onTap: _uploadingPhoto
+                    ? null
+                    : () => _showPhotoActions(context, user),
+                customBorder: const CircleBorder(),
+                child: Container(
+                  width: 104,
+                  height: 104,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF5C8F8A),
+                    border: Border.all(
+                      color: const Color(0xFFE8EAF5),
+                      width: 3,
                     ),
                   ),
+                  clipBehavior: Clip.antiAlias,
+                  child: _uploadingPhoto
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        )
+                      : photoUrl != null
+                      ? Image.network(
+                          photoUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => _avatarInitial(user),
+                        )
+                      : _avatarInitial(user),
                 ),
               ),
               Positioned(
@@ -128,7 +156,7 @@ class ProfilePage extends StatelessWidget {
                     border: Border.all(color: _bg, width: 3),
                   ),
                   child: const Icon(
-                    Icons.shield,
+                    Icons.camera_alt_rounded,
                     size: 14,
                     color: Colors.white,
                   ),
@@ -183,6 +211,369 @@ class ProfilePage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _avatarInitial(User user) {
+    return Center(
+      child: Text(
+        user.shortName.substring(0, 1).toUpperCase(),
+        style: GoogleFonts.plusJakartaSans(
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+          fontSize: 34,
+        ),
+      ),
+    );
+  }
+
+  String? _resolvePhotoUrl(String? value) {
+    if (value == null || value.isEmpty) return null;
+    final photoUri = Uri.tryParse(value);
+    final baseUri = Uri.parse(ApiConstants.baseUrl);
+    if (photoUri == null) return null;
+
+    if (photoUri.hasScheme) {
+      return photoUri
+          .replace(
+            scheme: baseUri.scheme,
+            host: baseUri.host,
+            port: baseUri.hasPort ? baseUri.port : null,
+          )
+          .toString();
+    }
+
+    return baseUri.resolve(value).toString();
+  }
+
+  Future<void> _pickAndUploadPhoto(BuildContext context) async {
+    final authBloc = context.read<AuthBloc>();
+
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 82,
+      maxWidth: 1200,
+      maxHeight: 1200,
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() => _uploadingPhoto = true);
+    try {
+      final user = await _authRepository.updateProfilePhoto(picked.path);
+      if (!mounted) return;
+      if (!context.mounted) return;
+      authBloc.add(AuthUserUpdated(user));
+      _showMessage('Foto profil berhasil diperbarui.');
+    } catch (error) {
+      if (!mounted) return;
+      if (!context.mounted) return;
+      _showMessage(_errorMessage(error), isError: true);
+    } finally {
+      if (mounted) setState(() => _uploadingPhoto = false);
+    }
+  }
+
+  Future<void> _showPhotoActions(BuildContext context, User user) async {
+    final photoUrl = _resolvePhotoUrl(user.profilePhotoUrl);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (photoUrl != null)
+                ListTile(
+                  leading: const Icon(Icons.visibility_rounded),
+                  title: const Text('Lihat foto profil'),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _showPhotoPreview(context, photoUrl);
+                  },
+                ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_rounded),
+                title: Text(
+                  photoUrl == null ? 'Pilih foto profil' : 'Ganti foto profil',
+                ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickAndUploadPhoto(context);
+                },
+              ),
+              if (photoUrl != null)
+                ListTile(
+                  leading: const Icon(
+                    Icons.delete_outline_rounded,
+                    color: _danger,
+                  ),
+                  title: const Text(
+                    'Hapus foto profil',
+                    style: TextStyle(color: _danger),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _confirmDeletePhoto(context);
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showPhotoPreview(
+    BuildContext context,
+    String photoUrl,
+  ) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        insetPadding: const EdgeInsets.all(20),
+        backgroundColor: Colors.black,
+        child: Stack(
+          children: [
+            AspectRatio(
+              aspectRatio: 1,
+              child: InteractiveViewer(
+                minScale: 1,
+                maxScale: 4,
+                child: Image.network(
+                  photoUrl,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => const Center(
+                    child: Text(
+                      'Foto gagal dimuat',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 8,
+              top: 8,
+              child: IconButton.filled(
+                tooltip: 'Tutup',
+                onPressed: () => Navigator.pop(dialogContext),
+                icon: const Icon(Icons.close_rounded),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDeletePhoto(BuildContext context) async {
+    final authBloc = context.read<AuthBloc>();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text('Hapus Foto Profil'),
+        content: const Text(
+          'Foto profil akan dihapus dan avatar kembali menggunakan inisial nama.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: _danger),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _uploadingPhoto = true);
+    try {
+      final user = await _authRepository.deleteProfilePhoto();
+      if (!mounted) return;
+      if (!context.mounted) return;
+      authBloc.add(AuthUserUpdated(user));
+      _showMessage('Foto profil berhasil dihapus.');
+    } catch (error) {
+      if (!mounted) return;
+      if (!context.mounted) return;
+      _showMessage(_errorMessage(error), isError: true);
+    } finally {
+      if (mounted) setState(() => _uploadingPhoto = false);
+    }
+  }
+
+  Future<void> _showChangePasswordDialog(BuildContext context) async {
+    final currentController = TextEditingController();
+    final passwordController = TextEditingController();
+    final confirmationController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    var saving = false;
+    var obscureCurrent = true;
+    var obscureNew = true;
+    var obscureConfirmation = true;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: !saving,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          InputDecoration decoration(
+            String label,
+            bool obscure,
+            VoidCallback toggle,
+          ) {
+            return InputDecoration(
+              labelText: label,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              suffixIcon: IconButton(
+                tooltip: obscure ? 'Tampilkan password' : 'Sembunyikan password',
+                onPressed: toggle,
+                icon: Icon(
+                  obscure
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
+                ),
+              ),
+            );
+          }
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: const Text('Ganti Password'),
+            content: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: currentController,
+                      obscureText: obscureCurrent,
+                      decoration: decoration(
+                        'Password lama',
+                        obscureCurrent,
+                        () => setDialogState(
+                          () => obscureCurrent = !obscureCurrent,
+                        ),
+                      ),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Password lama wajib diisi'
+                          : null,
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: passwordController,
+                      obscureText: obscureNew,
+                      decoration: decoration(
+                        'Password baru',
+                        obscureNew,
+                        () => setDialogState(() => obscureNew = !obscureNew),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.length < 8) {
+                          return 'Minimal 8 karakter';
+                        }
+                        if (!RegExp(r'[A-Za-z]').hasMatch(value) ||
+                            !RegExp(r'[0-9]').hasMatch(value)) {
+                          return 'Gunakan kombinasi huruf dan angka';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: confirmationController,
+                      obscureText: obscureConfirmation,
+                      decoration: decoration(
+                        'Konfirmasi password baru',
+                        obscureConfirmation,
+                        () => setDialogState(
+                          () => obscureConfirmation = !obscureConfirmation,
+                        ),
+                      ),
+                      validator: (value) => value != passwordController.text
+                          ? 'Konfirmasi password tidak cocok'
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: saving ? null : () => Navigator.pop(dialogContext),
+                child: const Text('Batal'),
+              ),
+              FilledButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        if (!formKey.currentState!.validate()) return;
+                        setDialogState(() => saving = true);
+                        try {
+                          final message = await _authRepository.changePassword(
+                            currentPassword: currentController.text,
+                            newPassword: passwordController.text,
+                            confirmation: confirmationController.text,
+                          );
+                          if (!dialogContext.mounted) return;
+                          Navigator.pop(dialogContext);
+                          _showMessage(message);
+                        } catch (error) {
+                          if (!dialogContext.mounted) return;
+                          setDialogState(() => saving = false);
+                          _showMessage(_errorMessage(error), isError: true);
+                        }
+                      },
+                child: saving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Simpan'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+  }
+
+  String _errorMessage(Object error) {
+    if (error is ApiException) return error.message;
+    if (error is DioException && error.error is ApiException) {
+      return (error.error as ApiException).message;
+    }
+    return 'Terjadi kesalahan. Silakan coba lagi.';
+  }
+
+  void _showMessage(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: isError ? _danger : const Color(0xFF249B66),
+        ),
+      );
   }
 
   Widget _buildActivePeriodCard() {

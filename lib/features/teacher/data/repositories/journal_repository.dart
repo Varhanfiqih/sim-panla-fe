@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../../core/network/dio_client.dart';
@@ -42,15 +41,17 @@ class JournalRepository {
   }) async {
     try {
       // Build form data
+      final attendancePayload = request.attendances
+          .map((e) => e.toJson())
+          .toList(growable: false);
+
       final formData = FormData.fromMap({
         'schedule_id': request.scheduleId,
         'materi': request.materi,
         'kebersihan_kelas': request.kebersihanKelas ?? '',
         'koordinat': request.koordinat ?? '',
-        'is_inval': request.isInval,
-        'attendances': jsonEncode(
-          request.attendances.map((e) => e.toJson()).toList(),
-        ),
+        'is_inval': request.isInval ? 1 : 0,
+        'attendances': attendancePayload,
       });
 
       // Add attachment if provided
@@ -60,7 +61,7 @@ class JournalRepository {
             'attachment',
             await MultipartFile.fromFile(
               attachment.path,
-              filename: attachment.path.split('/').last,
+              filename: attachment.path.split(RegExp(r'[/\\]')).last,
             ),
           ),
         );

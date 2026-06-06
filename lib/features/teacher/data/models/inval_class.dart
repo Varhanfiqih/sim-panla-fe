@@ -8,6 +8,7 @@ class InvalClass {
   final String absentTeacher;
   final String reason;
   final String status;
+  final int durationMinutes;
 
   InvalClass({
     required this.id,
@@ -19,6 +20,7 @@ class InvalClass {
     required this.absentTeacher,
     required this.reason,
     required this.status,
+    required this.durationMinutes,
   });
 
   factory InvalClass.fromJson(Map<String, dynamic> json) {
@@ -42,6 +44,8 @@ class InvalClass {
           (json['absent_teacher'] ?? json['teacherAbsent'])?.toString() ?? '',
       reason: json['reason']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
+      durationMinutes:
+          int.tryParse(json['duration_minutes']?.toString() ?? '0') ?? 0,
     );
   }
 }

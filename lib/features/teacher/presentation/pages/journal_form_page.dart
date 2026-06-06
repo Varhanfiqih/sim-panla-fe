@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -16,6 +17,8 @@ class JournalFormPage extends StatefulWidget {
 }
 
 class _JournalFormPageState extends State<JournalFormPage> {
+  static const int _maxImageBytes = 1024 * 1024;
+
   final _materiController = TextEditingController();
   final _imagePicker = ImagePicker();
 
@@ -41,7 +44,7 @@ class _JournalFormPageState extends State<JournalFormPage> {
     );
 
     if (pickedFile != null && mounted) {
-      context.read<JournalBloc>().add(SetAttachment(File(pickedFile.path)));
+      await _setCompressedImage(File(pickedFile.path));
     }
   }
 
@@ -54,7 +57,7 @@ class _JournalFormPageState extends State<JournalFormPage> {
     );
 
     if (pickedFile != null && mounted) {
-      context.read<JournalBloc>().add(SetAttachment(File(pickedFile.path)));
+      await _setCompressedImage(File(pickedFile.path));
     }
   }
 
@@ -114,16 +117,100 @@ class _JournalFormPageState extends State<JournalFormPage> {
         return;
       }
 
-      context.read<JournalBloc>().add(SetAttachment(File(path)));
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('File terpilih: ${picked.name}')));
+      final selectedFile = File(path);
+      if (_isImagePath(path)) {
+        await _setCompressedImage(selectedFile);
+      } else {
+        context.read<JournalBloc>().add(SetAttachment(selectedFile));
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('File terpilih: ${picked.name}')),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Gagal memilih file: $e')));
     }
+  }
+
+  Future<void> _setCompressedImage(File source) async {
+    try {
+      final compressed = await _compressImageToLimit(source);
+      if (!mounted) return;
+
+      context.read<JournalBloc>().add(SetAttachment(compressed));
+
+      final sizeKb = (await compressed.length() / 1024).ceil();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gambar siap diunggah ($sizeKb KB)')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: const Color(0xFFDC2626),
+        ),
+      );
+    }
+  }
+
+  Future<File> _compressImageToLimit(File source) async {
+    if (!await source.exists()) {
+      throw Exception('File gambar tidak ditemukan.');
+    }
+
+    if (await source.length() <= _maxImageBytes) {
+      return source;
+    }
+
+    var quality = 85;
+    var width = 1600;
+    var height = 1600;
+    File? result;
+
+    for (var attempt = 0; attempt < 7; attempt++) {
+      final targetPath =
+          '${Directory.systemTemp.path}/journal_${DateTime.now().microsecondsSinceEpoch}_$attempt.jpg';
+
+      final compressed = await FlutterImageCompress.compressAndGetFile(
+        source.absolute.path,
+        targetPath,
+        quality: quality,
+        minWidth: width,
+        minHeight: height,
+        format: CompressFormat.jpeg,
+        keepExif: false,
+      );
+
+      if (compressed == null) {
+        throw Exception('Gambar gagal dikompresi.');
+      }
+
+      result = File(compressed.path);
+      if (await result.length() <= _maxImageBytes) {
+        return result;
+      }
+
+      quality = (quality - 12).clamp(25, 85).toInt();
+      width = (width * 0.82).round().clamp(720, 1600).toInt();
+      height = (height * 0.82).round().clamp(720, 1600).toInt();
+    }
+
+    if (result != null && await result.length() <= _maxImageBytes) {
+      return result;
+    }
+
+    throw Exception(
+      'Ukuran gambar masih lebih dari 1 MB. Pilih gambar dengan resolusi lebih kecil.',
+    );
+  }
+
+  bool _isImagePath(String path) {
+    final extension = path.split('.').last.toLowerCase();
+    return const ['jpg', 'jpeg', 'png', 'webp'].contains(extension);
   }
 
   @override
@@ -297,12 +384,16 @@ class _JournalFormPageState extends State<JournalFormPage> {
         children: [
           Icon(icon, size: 14, color: Colors.white),
           const SizedBox(width: 6),
-          Text(
-            text,
-            style: GoogleFonts.inter(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -407,6 +498,9 @@ class _JournalFormPageState extends State<JournalFormPage> {
         children: [
           Text(
             label.toUpperCase(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
             style: GoogleFonts.plusJakartaSans(
               fontSize: 10,
               fontWeight: FontWeight.w800,

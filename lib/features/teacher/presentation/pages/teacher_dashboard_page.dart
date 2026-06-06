@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,7 +11,6 @@ import '../../data/models/schedule.dart';
 import '../bloc/bloc.dart';
 import 'check_in_page.dart';
 import 'schedule_page.dart';
-import 'qr_scanner_page.dart';
 import 'inval/inval_page.dart';
 import 'permission/permission_list_page.dart';
 import 'notification_page.dart';
@@ -41,7 +41,6 @@ class _GradeCardData {
 }
 
 class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
-  int _selectedNavIndex = 0;
   bool isCheckedIn = false; // Track check-in status
   bool? _isPresent;
   String? _attendanceReason;
@@ -51,6 +50,8 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
   _GradeCardData? _gradeCard;
 
   final GradeRepository _gradeRepository = GradeRepository();
+  late ValueNotifier<DateTime> _nowNotifier;
+  Timer? _clockTimer;
 
   // Colors from stitch design
   static const Color _primary = Color(0xFF0040DF);
@@ -64,7 +65,6 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
   static const Color _outlineVariant = Color(0xFFC3C6D7);
   static const Color _tertiary = Color(0xFF7A1BC8);
   static const Color _tertiaryContainer = Color(0xFF943FE2);
-  static const Color _error = Color(0xFFBA1A1A);
 
   Future<void> _onRefresh() async {
     final attendanceBloc = context.read<AttendanceBloc>();
@@ -86,11 +86,23 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
   @override
   void initState() {
     super.initState();
-    // Load check-in status when page loads
+    _nowNotifier = ValueNotifier<DateTime>(DateTime.now());
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _nowNotifier.value = DateTime.now();
+    });
+    // Load check-in status and today's schedule when page loads
     context.read<AttendanceBloc>().add(const CheckAttendanceStatus());
-    // Load today's schedule
     context.read<ScheduleBloc>().add(const LoadSchedules());
   }
+
+  @override
+  void dispose() {
+    _clockTimer?.cancel();
+    _nowNotifier.dispose();
+    super.dispose();
+  }
+
+  
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -350,6 +362,8 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
+                          final notificationBloc =
+                              context.read<NotificationBloc>();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -357,7 +371,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                             ),
                           ).then((_) {
                             if (!mounted) return;
-                            context.read<NotificationBloc>().add(
+                            notificationBloc.add(
                               const NotificationUnreadRequested(),
                             );
                           });
@@ -640,11 +654,11 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                           size: 14,
                         ),
                         const SizedBox(width: 4),
-                        StreamBuilder(
-                          stream: Stream.periodic(const Duration(seconds: 1)),
-                          builder: (context, snapshot) {
+                        ValueListenableBuilder<DateTime>(
+                          valueListenable: _nowNotifier,
+                          builder: (context, now, _) {
                             return Text(
-                              DateFormat('HH:mm:ss').format(DateTime.now()),
+                              DateFormat('HH:mm:ss').format(now),
                               style: GoogleFonts.inter(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -1291,16 +1305,20 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            _gradeCard?.isLocked == true
-                                ? 'Lihat Hasil Nilai'
-                                : 'Lanjutkan Input Nilai',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(
-                                0xFF07006C,
-                              ), // on-secondary-fixed
+                          Flexible(
+                            child: Text(
+                              _gradeCard?.isLocked == true
+                                  ? 'Lihat Hasil Nilai'
+                                  : 'Lanjutkan Input Nilai',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(
+                                  0xFF07006C,
+                                ), // on-secondary-fixed
+                              ),
                             ),
                           ),
                           const SizedBox(width: 4),

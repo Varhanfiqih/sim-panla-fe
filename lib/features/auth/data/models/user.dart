@@ -26,6 +26,9 @@ class User extends Equatable {
   @JsonKey(name: 'updated_at')
   final String? updatedAt;
 
+  @JsonKey(name: 'profile_photo_url')
+  final String? profilePhotoUrl;
+
   const User({
     required this.id,
     required this.nip,
@@ -36,6 +39,7 @@ class User extends Equatable {
     required this.isInvalPiket,
     this.createdAt,
     this.updatedAt,
+    this.profilePhotoUrl,
   });
 
   /// Factory constructor for creating a User from JSON
@@ -54,10 +58,14 @@ class User extends Equatable {
   bool get isGuruBK => role == 'Guru BK';
 
   /// Check if user is Wali Kelas (Homeroom Teacher)
-  bool get isWaliKelas => waliKelas != null && waliKelas != 'ALL';
+  bool get isWaliKelas {
+    final kelas = waliKelas?.trim();
+    if (kelas == null || kelas.isEmpty || kelas == '-') return false;
+    return kelas.toUpperCase() != 'ALL';
+  }
 
   /// Check if user has access to all classes
-  bool get hasAccessToAllClasses => waliKelas == 'ALL';
+  bool get hasAccessToAllClasses => waliKelas?.trim().toUpperCase() == 'ALL';
 
   /// Get list of subjects taught by the teacher
   List<String> get subjects {
@@ -85,6 +93,7 @@ class User extends Equatable {
     isInvalPiket,
     createdAt,
     updatedAt,
+    profilePhotoUrl,
   ];
 
   /// Copy with method for creating modified copies
@@ -98,6 +107,7 @@ class User extends Equatable {
     bool? isInvalPiket,
     String? createdAt,
     String? updatedAt,
+    String? profilePhotoUrl,
   }) {
     return User(
       id: id ?? this.id,
@@ -109,6 +119,7 @@ class User extends Equatable {
       isInvalPiket: isInvalPiket ?? this.isInvalPiket,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      profilePhotoUrl: profilePhotoUrl ?? this.profilePhotoUrl,
     );
   }
 }

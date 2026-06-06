@@ -33,31 +33,40 @@ class RealtimeNotificationService {
 
     _channel = WebSocketChannel.connect(uri);
 
-    _subscription = _channel!.stream.listen((raw) {
-      final payload = _toMap(raw);
-      if (payload == null) return;
+    _subscription = _channel!.stream.listen(
+      (raw) {
+        final payload = _toMap(raw);
+        if (payload == null) return;
 
-      final event = payload['event']?.toString();
-      if (event == 'pusher:connection_established') {
-        _subscribeToUserChannel(userId);
-        return;
-      }
-
-      if (event == 'pusher:ping') {
-        _send({'event': 'pusher:pong', 'data': {}});
-        return;
-      }
-
-      if (event == 'notification.pushed') {
-        final data = payload['data'];
-        final dataMap = data is Map
-            ? Map<String, dynamic>.from(data as Map)
-            : _toMap(data);
-        if (dataMap != null) {
-          onNotification(AppNotification.fromJson(dataMap));
+        final event = payload['event']?.toString();
+        if (event == 'pusher:connection_established') {
+          _subscribeToUserChannel(userId);
+          return;
         }
-      }
-    });
+
+        if (event == 'pusher:ping') {
+          _send({'event': 'pusher:pong', 'data': {}});
+          return;
+        }
+
+        if (event == 'notification.pushed') {
+          final data = payload['data'];
+          final dataMap = data is Map
+              ? Map<String, dynamic>.from(data)
+              : _toMap(data);
+          if (dataMap != null) {
+            onNotification(AppNotification.fromJson(dataMap));
+          }
+        }
+      },
+      onError: (_) => disconnect(),
+      onDone: () {
+        _channel = null;
+        _subscription = null;
+        _userId = null;
+      },
+      cancelOnError: true,
+    );
   }
 
   Future<void> disconnect() async {

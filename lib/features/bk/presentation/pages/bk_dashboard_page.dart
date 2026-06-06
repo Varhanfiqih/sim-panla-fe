@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:dio/dio.dart';
@@ -10,7 +11,12 @@ import '../../../../core/network/dio_client.dart';
 import '../../../auth/data/models/user.dart';
 import '../../../auth/presentation/bloc/bloc.dart';
 import '../../../teacher/data/models/permission.dart';
+import '../../../teacher/presentation/bloc/bloc.dart';
+import '../../../teacher/presentation/pages/check_in_page.dart';
+import '../../../teacher/presentation/pages/inval/inval_page.dart';
 import '../../../teacher/presentation/pages/profile_page.dart';
+import '../../../teacher/presentation/pages/qr_scanner_page.dart';
+import '../../../teacher/presentation/pages/schedule_page.dart';
 import '../../../teacher/presentation/bloc/permission/permission_bloc.dart';
 import '../../../teacher/presentation/bloc/permission/permission_event.dart';
 import '../../../teacher/presentation/bloc/permission/permission_state.dart';
@@ -29,12 +35,18 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
   String _approvalFilter = 'Semua';
   bool _bkDataLoaded = false;
   bool _bkLoading = false;
+  bool _hasCheckedIn = false;
+  bool? _isPresent;
+  String? _attendanceReason;
+  late final ValueNotifier<DateTime> _nowNotifier;
+  Timer? _clockTimer;
 
   List<_BkClassSummary> _classSummaries = const [];
   List<_BkWatchStudent> _watchStudents = const [];
+  List<_BkStudentOption> _bkStudents = const [];
+  List<_BkActionLog> _bkActions = const [];
 
   String _watchClassFilter = 'Semua';
-  final String _watchRiskFilter = 'Semua';
   String _gradeFilter = 'All';
 
   static const int _lateThreshold = 3;
@@ -50,11 +62,23 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
   @override
   void initState() {
     super.initState();
+    _nowNotifier = ValueNotifier<DateTime>(DateTime.now());
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _nowNotifier.value = DateTime.now();
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<PermissionBloc>().add(LoadPermissions());
+      context.read<AttendanceBloc>().add(const CheckAttendanceStatus());
       _loadBkData();
     });
+  }
+
+  @override
+  void dispose() {
+    _clockTimer?.cancel();
+    _nowNotifier.dispose();
+    super.dispose();
   }
 
   String _getGreeting() {
@@ -74,10 +98,13 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
         _dio.get('/bk/monitoring'),
         _dio.get('/bk/absentees'),
         _dio.get('/bk/actions'),
+        _dio.get('/bk/students'),
       ]);
 
       final monitoring = responses[0].data;
       final absentees = responses[1].data;
+      final actions = responses[2].data;
+      final students = responses[3].data;
       final classData = (monitoring['data'] as List<dynamic>? ?? const [])
           .map((e) => _BkClassSummary.fromJson(e as Map<String, dynamic>))
           .toList();
@@ -85,11 +112,20 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
       final watchData = (absentees['data'] as List<dynamic>? ?? const [])
           .map((e) => _BkWatchStudent.fromJson(e as Map<String, dynamic>))
           .toList();
+      final actionData = (actions['data'] as List<dynamic>? ?? const [])
+          .map((e) => _BkActionLog.fromJson(e as Map<String, dynamic>))
+          .toList();
+      final studentData = (students['data'] as List<dynamic>? ?? const [])
+          .map((e) => _BkStudentOption.fromJson(e as Map<String, dynamic>))
+          .where((e) => e.id > 0)
+          .toList();
 
       if (!mounted) return;
       setState(() {
         _classSummaries = classData;
         _watchStudents = watchData;
+        _bkActions = actionData;
+        _bkStudents = studentData;
         _bkDataLoaded = true;
         _bkLoading = false;
       });
@@ -107,49 +143,71 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, authState) {
-        User? user;
-        if (authState is AuthAuthenticated) {
-          user = authState.user;
+    return BlocListener<AttendanceBloc, AttendanceState>(
+      listener: (context, state) {
+        if (state is AttendanceStatusLoaded) {
+          setState(() {
+            _hasCheckedIn = state.hasCheckedIn;
+            _isPresent = state.isPresent;
+            _attendanceReason = state.reason;
+          });
+        } else if (state is AttendanceCheckInSuccess) {
+          setState(() {
+            _hasCheckedIn = true;
+            _isPresent = state.attendance.status == 'hadir';
+            _attendanceReason = state.attendance.reason;
+          });
+          context.read<ScheduleBloc>().add(const LoadSchedules());
+        } else if (state is AttendanceError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
         }
-
-        final topPadding = MediaQuery.of(context).padding.top;
-        final appBarHeight = topPadding + 72;
-
-        final permissionState = context.watch<PermissionBloc>().state;
-        final allPermissions = _extractPermissions(permissionState);
-        final pendingBk = allPermissions
-            .where((p) => p.isSubmittedToBk)
-            .toList();
-        final verifiedBk = allPermissions
-            .where((p) => p.isVerifiedByBk)
-            .toList();
-        final approvedFinal = allPermissions
-            .where((p) => p.isApprovedFinal)
-            .toList();
-        final rejected = allPermissions.where((p) => p.isRejected).toList();
-
-        return Scaffold(
-          backgroundColor: _bg,
-          body: Stack(
-            children: [
-              _buildActiveTab(
-                user,
-                appBarHeight,
-                permissionState,
-                allPermissions,
-                pendingBk,
-                verifiedBk,
-                approvedFinal,
-                rejected,
-              ),
-              if (_selectedNavIndex != 3) _buildTopBar(user),
-              _buildBottomNavBar(),
-            ],
-          ),
-        );
       },
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
+          User? user;
+          if (authState is AuthAuthenticated) {
+            user = authState.user;
+          }
+
+          final topPadding = MediaQuery.of(context).padding.top;
+          final appBarHeight = topPadding + 72;
+
+          final permissionState = context.watch<PermissionBloc>().state;
+          final allPermissions = _extractPermissions(permissionState);
+          final pendingBk = allPermissions
+              .where((p) => p.isSubmittedToBk)
+              .toList();
+          final verifiedBk = allPermissions
+              .where((p) => p.isVerifiedByBk)
+              .toList();
+          final approvedFinal = allPermissions
+              .where((p) => p.isApprovedFinal)
+              .toList();
+          final rejected = allPermissions.where((p) => p.isRejected).toList();
+
+          return Scaffold(
+            backgroundColor: _bg,
+            body: Stack(
+              children: [
+                _buildActiveTab(
+                  user,
+                  appBarHeight,
+                  permissionState,
+                  allPermissions,
+                  pendingBk,
+                  verifiedBk,
+                  approvedFinal,
+                  rejected,
+                ),
+                if (_selectedNavIndex <= 2) _buildTopBar(user),
+                _buildBottomNavBar(),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -182,6 +240,18 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
     if (_selectedNavIndex == 3) {
       return const ProfilePage();
     }
+    if (_selectedNavIndex == 4) {
+      return const SchedulePage();
+    }
+    if (_selectedNavIndex == 5) {
+      return BlocProvider(
+        create: (_) => QrScanBloc(),
+        child: const QrScannerPage(),
+      );
+    }
+    if (_selectedNavIndex == 6) {
+      return const InvalPage();
+    }
 
     return CustomScrollView(
       slivers: [
@@ -191,6 +261,8 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               _buildHero(),
+              const SizedBox(height: 14),
+              _buildCheckInCard(),
               const SizedBox(height: 14),
               _buildStatGrid(
                 pendingBkCount: pendingBk.length,
@@ -278,6 +350,160 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildCheckInCard() {
+    final isPresent = _hasCheckedIn && _isPresent == true;
+    final isAbsent = _hasCheckedIn && _isPresent == false;
+    final color = isPresent
+        ? const Color(0xFF0F9D78)
+        : isAbsent
+        ? const Color(0xFFDC2626)
+        : const Color(0xFFE57A00);
+    final title = isPresent
+        ? 'Sudah Check-In'
+        : isAbsent
+        ? 'Tercatat Tidak Hadir'
+        : 'Belum Check-In';
+    final description = isPresent
+        ? 'Jurnal mengajar sudah dapat diisi.'
+        : isAbsent
+        ? (_attendanceReason ?? 'Jurnal mengajar dikunci hari ini.')
+        : 'Lakukan presensi guru sebelum mengisi jurnal harian.';
+
+    return InkWell(
+      onTap: _hasCheckedIn ? null : _openCheckIn,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: color.withValues(alpha: 0.28)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<DateTime>(
+              valueListenable: _nowNotifier,
+              builder: (context, now, _) {
+                return Row(
+                  children: [
+                    Icon(Icons.calendar_today_rounded, size: 14, color: color),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        DateFormat('EEEE, dd MMMM yyyy', 'id_ID').format(now),
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: _muted,
+                        ),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.access_time_rounded,
+                      size: 15,
+                      color: _muted,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      DateFormat('HH:mm:ss').format(now),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: _ink,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 13),
+            Row(
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    isPresent
+                        ? Icons.check_circle_rounded
+                        : isAbsent
+                        ? Icons.cancel_rounded
+                        : Icons.fingerprint_rounded,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: _ink,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        description,
+                        style: GoogleFonts.inter(fontSize: 12, color: _muted),
+                      ),
+                    ],
+                  ),
+                ),
+                if (! _hasCheckedIn)
+                  const Icon(Icons.chevron_right_rounded, color: _muted),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openCheckIn() async {
+    await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.4),
+      builder: (_) => const CheckInPage(),
+    );
+
+    if (!mounted) return;
+    context.read<AttendanceBloc>().add(const CheckAttendanceStatus());
+    context.read<ScheduleBloc>().add(const LoadSchedules());
+  }
+
+  void _openJournalMenu() {
+    if (! _hasCheckedIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Silakan check-in presensi guru terlebih dahulu.'),
+        ),
+      );
+      _openCheckIn();
+      return;
+    }
+
+    if (_isPresent != true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Jurnal terkunci karena Anda tercatat tidak hadir.'),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _selectedNavIndex = 4);
   }
 
   Widget _buildHero() {
@@ -436,26 +662,54 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: _line),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: _menuTile(
-              icon: Icons.fact_check_rounded,
-              label: 'Approval Izin ($pendingCount)',
-              desc: 'Verifikasi awal BK',
-              color: const Color(0xFF2250E8),
-              onTap: () => setState(() => _selectedNavIndex = 1),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: _menuTile(
+                  icon: Icons.fact_check_rounded,
+                  label: 'Approval Izin ($pendingCount)',
+                  desc: 'Verifikasi awal BK',
+                  color: const Color(0xFF2250E8),
+                  onTap: () => setState(() => _selectedNavIndex = 1),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _menuTile(
+                  icon: Icons.rule_folder_outlined,
+                  label: 'Monitoring Kelas',
+                  desc: 'Pantau & tindakan BK',
+                  color: const Color(0xFF7C3AED),
+                  onTap: () => setState(() => _selectedNavIndex = 2),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: _menuTile(
-              icon: Icons.rule_folder_outlined,
-              label: 'Monitoring Kelas',
-              desc: 'Pantau & tindakan BK',
-              color: const Color(0xFF7C3AED),
-              onTap: () => setState(() => _selectedNavIndex = 2),
-            ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _menuTile(
+                  icon: Icons.menu_book_rounded,
+                  label: 'Jurnal Mengajar',
+                  desc: 'Jadwal & jurnal kelas',
+                  color: const Color(0xFF0F9D78),
+                  onTap: _openJournalMenu,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _menuTile(
+                  icon: Icons.event_available_rounded,
+                  label: 'Jadwal Inval',
+                  desc: 'Lihat dan klaim kelas kosong',
+                  color: const Color(0xFFDB2777),
+                  onTap: () => setState(() => _selectedNavIndex = 6),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -693,13 +947,37 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildNavItem(0, Icons.home_rounded),
-                  const SizedBox(width: 12),
-                  _buildNavItem(1, Icons.fact_check_rounded),
-                  const SizedBox(width: 12),
-                  _buildNavItem(2, Icons.rule_folder_outlined),
-                  const SizedBox(width: 12),
-                  _buildNavItem(3, Icons.person_rounded),
+                  _buildNavItem(
+                    targetIndex: 0,
+                    icon: Icons.home_rounded,
+                    selectedIndexes: const {0},
+                  ),
+                  const SizedBox(width: 8),
+                  _buildNavItem(
+                    targetIndex: 4,
+                    icon: Icons.menu_book_rounded,
+                    selectedIndexes: const {4, 6},
+                    onTap: _openJournalMenu,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildNavItem(
+                    targetIndex: 5,
+                    icon: Icons.qr_code_scanner_rounded,
+                    selectedIndexes: const {5},
+                    isPrimary: true,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildNavItem(
+                    targetIndex: 1,
+                    icon: Icons.fact_check_rounded,
+                    selectedIndexes: const {1, 2},
+                  ),
+                  const SizedBox(width: 8),
+                  _buildNavItem(
+                    targetIndex: 3,
+                    icon: Icons.person_rounded,
+                    selectedIndexes: const {3},
+                  ),
                 ],
               ),
             ),
@@ -709,23 +987,38 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon) {
-    final isSelected = _selectedNavIndex == index;
+  Widget _buildNavItem({
+    required int targetIndex,
+    required IconData icon,
+    required Set<int> selectedIndexes,
+    bool isPrimary = false,
+    VoidCallback? onTap,
+  }) {
+    final isSelected = selectedIndexes.contains(_selectedNavIndex);
     return GestureDetector(
-      onTap: () => setState(() => _selectedNavIndex = index),
+      onTap: onTap ?? () => setState(() => _selectedNavIndex = targetIndex),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.all(13),
+        padding: EdgeInsets.all(isPrimary ? 15 : 12),
         decoration: BoxDecoration(
           color: isSelected
               ? Colors.white
               : Colors.white.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(isPrimary ? 18 : 16),
+          boxShadow: isPrimary
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Icon(
           icon,
-          size: 22,
+          size: isPrimary ? 25 : 22,
           color: isSelected ? _primary : Colors.white.withValues(alpha: 0.85),
         ),
       ),
@@ -1758,7 +2051,7 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
     final classesByJenjang = _classesByJenjang();
     final classChips = [
       'All',
-      ...classesByJenjang.map((e) => e.namaKelas).toList(),
+      ...classesByJenjang.map((e) => e.namaKelas),
     ];
     final activeClass = _watchClassFilter == 'Semua'
         ? 'All'
@@ -1773,6 +2066,26 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
         _tabTitle(
           'Monitoring Kelas',
           'Pantau kelas berdasarkan indikator harian.',
+        ),
+        const SizedBox(height: 14),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _bkLoading ? null : () => _showCreateActionSheet(),
+            icon: const Icon(Icons.add_task_rounded, size: 18),
+            label: Text(
+              'Tambah Tindakan BK',
+              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2250E8),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          ),
         ),
         const SizedBox(height: 14),
         Row(
@@ -1938,7 +2251,137 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
             ],
           ),
         ),
+        const SizedBox(height: 16),
+        _buildActionHistorySection(),
       ],
+    );
+  }
+
+  Widget _buildActionHistorySection() {
+    final latestActions = _bkActions.take(8).toList();
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'Riwayat Tindakan BK',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: _ink,
+                ),
+              ),
+              const Spacer(),
+              if (_bkLoading)
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (latestActions.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFF),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5EAF7)),
+              ),
+              child: Text(
+                _bkDataLoaded
+                    ? 'Belum ada tindakan BK yang tercatat.'
+                    : 'Memuat riwayat tindakan BK...',
+                style: GoogleFonts.inter(color: _muted, fontSize: 12),
+              ),
+            )
+          else
+            ...latestActions.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: _actionHistoryItem(item),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _actionHistoryItem(_BkActionLog item) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFF),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _line),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: const Color(0xFFE2E8F5),
+            child: Text(
+              _initials(item.studentName),
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF2B4CC8),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.studentName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: _ink,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${item.actionLabel} • ${item.className} • ${item.date}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: const Color(0xFF8A93A8),
+                  ),
+                ),
+                if (item.notes.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    item.notes,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: const Color(0xFF475569),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -2050,32 +2493,6 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
     );
   }
 
-  String _normalizeClass(String raw) {
-    return raw.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
-  }
-
-  String _riskLabel(int alpaCount, {int lateCount = 0}) {
-    if (alpaCount >= (_alpaThreshold + 2) ||
-        lateCount >= (_lateThreshold + 2)) {
-      return 'Tinggi';
-    }
-    if (alpaCount >= _alpaThreshold || lateCount >= _lateThreshold) {
-      return 'Perlu Perhatian';
-    }
-    return 'Waspada';
-  }
-
-  ({Color fg, Color bg}) _riskTone(String label) {
-    switch (label) {
-      case 'Tinggi':
-        return (fg: const Color(0xFF991B1B), bg: const Color(0xFFFEE2E2));
-      case 'Perlu Perhatian':
-        return (fg: const Color(0xFF92400E), bg: const Color(0xFFFEF3C7));
-      default:
-        return (fg: const Color(0xFF1D4ED8), bg: const Color(0xFFDBEAFE));
-    }
-  }
-
   Widget _watchChip({
     required String label,
     required bool active,
@@ -2102,17 +2519,30 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
   }
 
   Future<void> _showCreateActionSheet({_BkWatchStudent? initialStudent}) async {
-    if (_watchStudents.isEmpty) {
+    final studentOptions = _bkStudents.isNotEmpty
+        ? _bkStudents
+        : _watchStudents
+              .map(
+                (s) => _BkStudentOption(
+                  id: s.studentId,
+                  name: s.name,
+                  nis: '',
+                  classId: s.classId,
+                ),
+              )
+              .where((s) => s.id > 0)
+              .toList();
+
+    if (studentOptions.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Daftar siswa watchlist masih kosong.')),
+        const SnackBar(content: Text('Daftar siswa BK belum tersedia.')),
       );
       return;
     }
 
     final notesController = TextEditingController();
-    var selectedStudentId =
-        initialStudent?.studentId ?? _watchStudents.first.studentId;
+    var selectedStudentId = initialStudent?.studentId ?? studentOptions.first.id;
     var selectedActionType = 'konseling';
     var selectedDate = DateTime.now();
 
@@ -2163,12 +2593,13 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
                         ),
                         const SizedBox(height: 12),
                         DropdownButtonFormField<int>(
-                          initialValue: selectedStudentId,
+                          value: selectedStudentId,
+                          isExpanded: true,
                           decoration: _inputDecoration('Siswa'),
-                          items: _watchStudents
+                          items: studentOptions
                               .map(
                                 (s) => DropdownMenuItem<int>(
-                                  value: s.studentId,
+                                  value: s.id,
                                   child: Text(
                                     '${s.name} • ${s.classId}',
                                     style: GoogleFonts.inter(fontSize: 13),
@@ -2183,7 +2614,8 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
                         ),
                         const SizedBox(height: 10),
                         DropdownButtonFormField<String>(
-                          initialValue: selectedActionType,
+                          value: selectedActionType,
+                          isExpanded: true,
                           decoration: _inputDecoration('Jenis Tindakan'),
                           items: const [
                             DropdownMenuItem(
@@ -2608,6 +3040,76 @@ class _BkWatchStudent {
       totalTerlambat: _asInt(json['total_terlambat'] ?? 0),
       jamMasukPertama: (json['jam_masuk_pertama'] ?? '-').toString(),
     );
+  }
+}
+
+class _BkStudentOption {
+  final int id;
+  final String name;
+  final String nis;
+  final String classId;
+
+  const _BkStudentOption({
+    required this.id,
+    required this.name,
+    required this.nis,
+    required this.classId,
+  });
+
+  factory _BkStudentOption.fromJson(Map<String, dynamic> json) {
+    return _BkStudentOption(
+      id: _asInt(json['id']),
+      name: (json['name'] ?? '-').toString(),
+      nis: (json['nis'] ?? '').toString(),
+      classId: (json['class_id'] ?? '-').toString(),
+    );
+  }
+}
+
+class _BkActionLog {
+  final int id;
+  final String actionType;
+  final String notes;
+  final String date;
+  final String studentName;
+  final String className;
+
+  const _BkActionLog({
+    required this.id,
+    required this.actionType,
+    required this.notes,
+    required this.date,
+    required this.studentName,
+    required this.className,
+  });
+
+  factory _BkActionLog.fromJson(Map<String, dynamic> json) {
+    final student = (json['student'] as Map<String, dynamic>? ?? const {});
+    return _BkActionLog(
+      id: _asInt(json['id']),
+      actionType: (json['action_type'] ?? '-').toString(),
+      notes: (json['notes'] ?? '').toString(),
+      date: (json['tanggal'] ?? json['created_at'] ?? '-').toString(),
+      studentName: (student['name'] ?? 'Siswa').toString(),
+      className: (student['kelas'] ?? student['class_id'] ?? '-').toString(),
+    );
+  }
+
+  String get actionLabel {
+    switch (actionType) {
+      case 'panggilan_ortu':
+        return 'Panggilan Orang Tua';
+      case 'home_visit':
+        return 'Home Visit';
+      case 'surat_peringatan':
+        return 'Surat Peringatan';
+      case 'konseling':
+        return 'Konseling';
+      case 'lainnya':
+        return 'Lainnya';
+      default:
+        return actionType;
+    }
   }
 }
 

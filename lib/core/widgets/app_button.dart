@@ -184,7 +184,7 @@ class AppButton extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
         border: Border.all(
-          color: AppColors.outlineVariant.withOpacity(0.15),
+          color: AppColors.outlineVariant.withValues(alpha: 0.15),
           width: AppDimensions.ghostBorderWidth,
         ),
       ),

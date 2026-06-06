@@ -129,4 +129,115 @@ class AuthRepository {
       );
     }
   }
+
+  Future<User> updateProfilePhoto(String filePath) async {
+    try {
+      final response = await _dioClient.dio.post(
+        ApiConstants.profileUpdate,
+        data: FormData.fromMap({
+          'photo': await MultipartFile.fromFile(
+            filePath,
+            filename: filePath.split(RegExp(r'[/\\]')).last,
+          ),
+        }),
+      );
+
+      if (response.statusCode != 200 || response.data['success'] != true) {
+        throw ApiException(
+          message: _responseMessage(response.data),
+          statusCode: response.statusCode ?? 0,
+          type: ApiExceptionType.validation,
+        );
+      }
+
+      final user = User.fromJson(
+        response.data['data'] as Map<String, dynamic>,
+      );
+      await _storage.saveUserData(jsonEncode(user.toJson()));
+      return user;
+    } on DioException catch (e) {
+      if (e.error is ApiException) rethrow;
+      throw ApiException(
+        message: _responseMessage(e.response?.data),
+        statusCode: e.response?.statusCode ?? 0,
+        type: ApiExceptionType.unknown,
+      );
+    }
+  }
+
+  Future<User> deleteProfilePhoto() async {
+    try {
+      final response = await _dioClient.dio.delete(ApiConstants.profilePhoto);
+
+      if (response.statusCode != 200 || response.data['success'] != true) {
+        throw ApiException(
+          message: _responseMessage(response.data),
+          statusCode: response.statusCode ?? 0,
+          type: ApiExceptionType.serverError,
+        );
+      }
+
+      final user = User.fromJson(
+        response.data['data'] as Map<String, dynamic>,
+      );
+      await _storage.saveUserData(jsonEncode(user.toJson()));
+      return user;
+    } on DioException catch (e) {
+      if (e.error is ApiException) rethrow;
+      throw ApiException(
+        message: _responseMessage(e.response?.data),
+        statusCode: e.response?.statusCode ?? 0,
+        type: ApiExceptionType.unknown,
+      );
+    }
+  }
+
+  Future<String> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmation,
+  }) async {
+    try {
+      final response = await _dioClient.dio.post(
+        ApiConstants.profileChangePassword,
+        data: {
+          'current_password': currentPassword,
+          'password': newPassword,
+          'password_confirmation': confirmation,
+        },
+      );
+
+      if (response.statusCode != 200 || response.data['success'] != true) {
+        throw ApiException(
+          message: _responseMessage(response.data),
+          statusCode: response.statusCode ?? 0,
+          type: ApiExceptionType.validation,
+        );
+      }
+
+      return response.data['message']?.toString() ??
+          'Password berhasil diperbarui.';
+    } on DioException catch (e) {
+      if (e.error is ApiException) rethrow;
+      throw ApiException(
+        message: _responseMessage(e.response?.data),
+        statusCode: e.response?.statusCode ?? 0,
+        type: ApiExceptionType.unknown,
+      );
+    }
+  }
+
+  String _responseMessage(dynamic data) {
+    if (data is Map) {
+      if (data['errors'] is Map) {
+        final errors = data['errors'] as Map;
+        if (errors.isNotEmpty) {
+          final first = errors.values.first;
+          if (first is List && first.isNotEmpty) return first.first.toString();
+        }
+      }
+      if (data['message'] != null) return data['message'].toString();
+    }
+    return ApiConstants.errorUnknown;
+  }
 }

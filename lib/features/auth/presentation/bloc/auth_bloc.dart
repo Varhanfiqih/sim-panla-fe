@@ -16,6 +16,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLoginRequested>(_onAuthLoginRequested);
     on<AuthLogoutRequested>(_onAuthLogoutRequested);
     on<AuthRefreshUserRequested>(_onAuthRefreshUserRequested);
+    on<AuthUserUpdated>((event, emit) {
+      emit(AuthAuthenticated(user: event.user));
+    });
   }
 
   /// Handle auth check on app start

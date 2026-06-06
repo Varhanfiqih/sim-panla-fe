@@ -92,7 +92,7 @@ class _GradeSetupPageState extends State<GradeSetupPage> {
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text(
-                  'Data master belum lengkap. Pastikan periode, mapel, dan kategori nilai sudah dibuat di web admin.',
+                  'Data master belum lengkap: ${_missingMasterDataLabel()}.',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(fontSize: 14),
                 ),
@@ -248,6 +248,15 @@ class _GradeSetupPageState extends State<GradeSetupPage> {
         color: const Color(0xFF8A93A8),
       ),
     );
+  }
+
+  String _missingMasterDataLabel() {
+    final missing = <String>[];
+    if (_meta?.periods.isEmpty ?? true) missing.add('periode nilai');
+    if (_meta?.subjects.isEmpty ?? true) missing.add('mata pelajaran');
+    if (_meta?.categories.isEmpty ?? true) missing.add('kategori nilai');
+    if (missing.isEmpty) return '-';
+    return missing.join(', ');
   }
 
   Widget _buildReadOnlyCard({required IconData icon, required String value}) {

@@ -159,9 +159,8 @@ class QrScanBloc extends Bloc<QrScanEvent, QrScanState> {
     }
 
     try {
-      // For backend, if activity is specifically defined and not "Presensi Harian"
-      // we might want to pass it as "kegiatan"
-      final kegiatan = selectedActivity?.activity != 'Presensi Harian'
+        // Only Reguler should omit the kegiatan label.
+        final kegiatan = selectedActivity?.activity != 'Reguler'
           ? selectedActivity?.activity
           : null;
 

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../bloc/bloc.dart';
@@ -96,6 +97,7 @@ class _QrScannerPageState extends State<QrScannerPage>
       listener: (context, state) {
         // Show success snackbar
         if (state is QrScanSuccess) {
+          final qrScanBloc = context.read<QrScanBloc>();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -113,13 +115,14 @@ class _QrScannerPageState extends State<QrScannerPage>
           // Auto continue scanning after 2 seconds
           Future.delayed(const Duration(seconds: 2), () {
             if (mounted) {
-              context.read<QrScanBloc>().add(const ClearScanResult());
+              qrScanBloc.add(const ClearScanResult());
             }
           });
         }
 
         // Show error snackbar
         if (state is QrScanError) {
+          final qrScanBloc = context.read<QrScanBloc>();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -137,7 +140,7 @@ class _QrScannerPageState extends State<QrScannerPage>
           // Auto clear error after 2 seconds
           Future.delayed(const Duration(seconds: 2), () {
             if (mounted) {
-              context.read<QrScanBloc>().add(const ClearScanResult());
+              qrScanBloc.add(const ClearScanResult());
             }
           });
         }
@@ -531,7 +534,7 @@ class _QrScannerPageState extends State<QrScannerPage>
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
                     // Category selection
                     Text(
@@ -543,25 +546,51 @@ class _QrScannerPageState extends State<QrScannerPage>
                         color: _outline,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children:
-                          selectedActivity?.scanTypes.map((category) {
-                            final bool isSelected =
-                                selectedCategory?.id == category.id;
-                            return _buildCategoryChip(
-                              label: category.name,
-                              isSelected: isSelected,
-                              onTap: () {
-                                context.read<QrScanBloc>().add(
-                                  SelectCategory(category),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: [
+                          ...(selectedActivity?.scanTypes.map((category) {
+                                final bool isSelected =
+                                    selectedCategory?.id == category.id;
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: _buildCategoryChip(
+                                    label: category.name,
+                                    isSelected: isSelected,
+                                    onTap: () {
+                                      context.read<QrScanBloc>().add(
+                                        SelectCategory(category),
+                                      );
+                                    },
+                                  ),
                                 );
-                              },
-                            );
-                          }).toList() ??
-                          [],
+                              }).toList() ??
+                              []),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: state is QrScanReady
+                            ? () => _showManualNisnDialog(context)
+                            : null,
+                        icon: const Icon(Icons.keyboard_alt_outlined),
+                        label: const Text('Ketik NISN Manual'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _primary,
+                          minimumSize: const Size.fromHeight(44),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: const BorderSide(color: _primary),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
                     ),
 
                     // Last scan result
@@ -600,6 +629,81 @@ class _QrScannerPageState extends State<QrScannerPage>
     );
   }
 
+  Future<void> _showManualNisnDialog(BuildContext context) async {
+    final formKey = GlobalKey<FormState>();
+    var inputNisn = '';
+    final qrScanBloc = context.read<QrScanBloc>();
+
+    await _scannerController.stop();
+
+    if (!context.mounted) return;
+
+    final nisn = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text('Input NISN Siswa'),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.done,
+            maxLength: 10,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(10),
+            ],
+            decoration: const InputDecoration(
+              labelText: 'NISN',
+              hintText: 'Masukkan 8-10 digit NISN',
+              prefixIcon: Icon(Icons.badge_outlined),
+              border: OutlineInputBorder(),
+              counterText: '',
+            ),
+            validator: (value) {
+              final input = value?.trim() ?? '';
+              if (input.isEmpty) return 'NISN wajib diisi';
+              if (input.length < 8 || input.length > 10) {
+                return 'NISN harus terdiri dari 8-10 digit';
+              }
+              return null;
+            },
+            onChanged: (value) => inputNisn = value.trim(),
+            onFieldSubmitted: (_) {
+              if (formKey.currentState!.validate()) {
+                Navigator.pop(dialogContext, inputNisn);
+              }
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Batal'),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                Navigator.pop(dialogContext, inputNisn);
+              }
+            },
+            icon: const Icon(Icons.check_rounded),
+            label: const Text('Proses'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+
+    _syncScannerState();
+
+    if (nisn != null) {
+      qrScanBloc.add(ProcessScan(nisn));
+    }
+  }
+
   Widget _buildCategoryChip({
     required String label,
     required bool isSelected,
@@ -611,7 +715,8 @@ class _QrScannerPageState extends State<QrScannerPage>
         onTap: onTap,
         borderRadius: BorderRadius.circular(9999),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          constraints: const BoxConstraints(minHeight: 36),
           decoration: BoxDecoration(
             gradient: isSelected
                 ? const LinearGradient(
@@ -634,8 +739,10 @@ class _QrScannerPageState extends State<QrScannerPage>
           ),
           child: Text(
             label,
+            softWrap: false,
+            overflow: TextOverflow.visible,
             style: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
               color: isSelected ? Colors.white : _onSurfaceVariant,
             ),

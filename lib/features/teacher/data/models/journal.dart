@@ -266,7 +266,7 @@ class JournalSubmitRequest {
       'materi': materi,
       'kebersihan_kelas': kebersihanKelas ?? '',
       'koordinat': koordinat ?? '',
-      'is_inval': isInval.toString(),
+      'is_inval': isInval ? 1 : 0,
       'attendances': attendances.map((e) => e.toJson()).toList(),
     };
   }

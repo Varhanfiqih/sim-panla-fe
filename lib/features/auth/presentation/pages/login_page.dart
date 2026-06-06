@@ -25,7 +25,6 @@ class _LoginPageState extends State<LoginPage> {
   static const Color _primaryContainer = Color(0xFF2D5BFF);
   static const Color _surface = Color(0xFFFAF8FF);
   static const Color _surfaceContainerHigh = Color(0xFFE2E7FF);
-  static const Color _surfaceContainerLowest = Color(0xFFFFFFFF);
   static const Color _onSurface = Color(0xFF131B2E);
   static const Color _onSurfaceVariant = Color(0xFF434655);
   static const Color _outline = Color(0xFF737686);
@@ -145,8 +144,8 @@ class _LoginPageState extends State<LoginPage> {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  _primaryContainer.withOpacity(0.15),
-                  _surface.withOpacity(0),
+                  _primaryContainer.withValues(alpha: 0.15),
+                  _surface.withValues(alpha: 0),
                 ],
                 stops: const [0.0, 0.7],
               ),
@@ -163,7 +162,10 @@ class _LoginPageState extends State<LoginPage> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
-                colors: [_tertiary.withOpacity(0.1), _surface.withOpacity(0)],
+                colors: [
+                  _tertiary.withValues(alpha: 0.1),
+                  _surface.withValues(alpha: 0),
+                ],
                 stops: const [0.0, 0.7],
               ),
             ),
@@ -189,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: _primary.withOpacity(0.2),
+                color: _primary.withValues(alpha: 0.2),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),
@@ -243,12 +245,15 @@ class _LoginPageState extends State<LoginPage> {
         filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.4), width: 1),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.4),
+              width: 1,
+            ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF131B2E).withOpacity(0.06),
+                color: const Color(0xFF131B2E).withValues(alpha: 0.06),
                 blurRadius: 40,
                 offset: const Offset(0, 0),
               ),
@@ -335,7 +340,7 @@ class _LoginPageState extends State<LoginPage> {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: _surfaceContainerHigh.withOpacity(0.5),
+            color: _surfaceContainerHigh.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: error != null ? Border.all(color: _error, width: 1) : null,
           ),
@@ -380,47 +385,97 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, right: 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'PASSWORD',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                  color: _onSurfaceVariant,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Hubungi admin untuk reset password'),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 300;
+
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'PASSWORD',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                        color: _onSurfaceVariant,
                       ),
-                      margin: const EdgeInsets.all(16),
                     ),
-                  );
-                },
-                child: Text(
-                  'Forgot Password?',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: _primary,
+                    const SizedBox(height: 4),
+                    GestureDetector(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              'Hubungi admin untuk reset password',
+                            ),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            margin: const EdgeInsets.all(16),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Forgot Password?',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: _primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Text(
+                    'PASSWORD',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                      color: _onSurfaceVariant,
+                    ),
                   ),
-                ),
-              ),
-            ],
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text(
+                            'Hubungi admin untuk reset password',
+                          ),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          margin: const EdgeInsets.all(16),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Forgot Password?',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: _primary,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: _surfaceContainerHigh.withOpacity(0.5),
+            color: _surfaceContainerHigh.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: _passwordError != null
                 ? Border.all(color: _error, width: 1)
@@ -532,7 +587,7 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: _primary.withOpacity(0.2),
+                  color: _primary.withValues(alpha: 0.2),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                 ),
@@ -594,8 +649,11 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         const SizedBox(height: 32),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
+          runAlignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          runSpacing: 8,
           children: [
             _buildFooterLink('Privacy Policy'),
             _buildFooterDot(),

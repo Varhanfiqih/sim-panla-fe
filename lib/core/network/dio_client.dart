@@ -80,9 +80,6 @@ class DioClient {
 
           // Clear storage
           await _storage.clearSecureData();
-
-          // TODO: Navigate to login screen
-          // This will be handled by BLoC listening to error events
         }
 
         return handler.next(error);

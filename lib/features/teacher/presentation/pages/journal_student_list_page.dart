@@ -193,7 +193,7 @@ class _HeroHeader extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -220,7 +220,7 @@ class _HeroHeader extends StatelessWidget {
               Text(
                 'SESI SAAT INI',
                 style: AppTextStyles.labelSmall.copyWith(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   letterSpacing: 1.5,
                   fontWeight: FontWeight.w600,
                 ),
@@ -242,7 +242,7 @@ class _HeroHeader extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -252,7 +252,7 @@ class _HeroHeader extends StatelessWidget {
                     width: 6,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -263,7 +263,7 @@ class _HeroHeader extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.right,
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -282,9 +282,9 @@ class _HeroHeader extends StatelessWidget {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                     ),
                     child: Row(
                       children: [
@@ -305,7 +305,7 @@ class _HeroHeader extends StatelessWidget {
                         Text(
                           'Scan Gerbang',
                           style: AppTextStyles.labelSmall.copyWith(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                           ),
                         ),
                       ],
@@ -371,7 +371,7 @@ class _StudentCard extends StatelessWidget {
                     height: 56,
                     decoration: BoxDecoration(
                       color: isLocked
-                          ? AppColors.surfaceContainerLow.withOpacity(0.6)
+                          ? AppColors.surfaceContainerLow.withValues(alpha: 0.6)
                           : AppColors.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -502,7 +502,7 @@ class _StudentCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLow.withOpacity(0.5),
+              color: AppColors.surfaceContainerLow.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -599,7 +599,7 @@ class _StatusButton extends StatelessWidget {
                 ? LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [color, color.withOpacity(0.8)],
+                    colors: [color, color.withValues(alpha: 0.8)],
                   )
                 : null,
             color: isSelected ? null : Colors.transparent,
@@ -607,7 +607,7 @@ class _StatusButton extends StatelessWidget {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: color.withOpacity(0.3),
+                      color: color.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -692,7 +692,7 @@ class JournalStudentListPageWithFAB extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF0040DF).withOpacity(0.4),
+                        color: const Color(0xFF0040DF).withValues(alpha: 0.4),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -712,7 +712,7 @@ class JournalStudentListPageWithFAB extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(

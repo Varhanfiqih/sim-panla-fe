@@ -16,6 +16,7 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
   isInvalPiket: json['is_inval_piket'] as bool,
   createdAt: json['created_at'] as String?,
   updatedAt: json['updated_at'] as String?,
+  profilePhotoUrl: json['profile_photo_url'] as String?,
 );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -28,4 +29,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
   'is_inval_piket': instance.isInvalPiket,
   'created_at': instance.createdAt,
   'updated_at': instance.updatedAt,
+  'profile_photo_url': instance.profilePhotoUrl,
 };

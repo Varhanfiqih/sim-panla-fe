@@ -5,7 +5,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.11.4
+  sdk: ^3.8.0
 
 dependencies:
   flutter:
@@ -37,6 +37,7 @@ dependencies:
   # Utils
   intl: ^0.19.0
   image_picker: ^1.2.1
+  flutter_image_compress: ^2.4.0
   file_picker: ^8.1.2
   mobile_scanner: ^5.2.3  # QR Code Scanner
   permission_handler: ^11.0.1

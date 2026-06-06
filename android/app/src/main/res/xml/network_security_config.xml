@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Trust system certificates -->
-    <base-config cleartextTrafficPermitted="false">
+    <!-- Allow cleartext HTTP for local development API endpoints. -->
+    <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system"/>
             <certificates src="user"/>
         </trust-anchors>
     </base-config>
-    
-    <!-- Domain configuration for our API -->
-    <domain-config cleartextTrafficPermitted="false">
+
+    <!-- Keep production HTTPS domain trust intact. -->
+    <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">smpn8.my.id</domain>
         <trust-anchors>
             <certificates src="system"/>

@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -63,7 +61,7 @@ class _CheckInPageState extends State<CheckInPage> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: _onSurface.withAlpha(38), // 0.15 opacity
+                        color: _onSurface.withValues(alpha: 0.15),
                         blurRadius: 60,
                         offset: const Offset(0, -20),
                       ),
@@ -79,7 +77,7 @@ class _CheckInPageState extends State<CheckInPage> {
                             width: 48,
                             height: 6,
                             decoration: BoxDecoration(
-                              color: _outlineVariant.withAlpha(77),
+                              color: _outlineVariant.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(3),
                             ),
                           ),

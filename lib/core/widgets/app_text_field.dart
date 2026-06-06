@@ -114,7 +114,7 @@ class _AppTextFieldState extends State<AppTextField> {
               color: hasError
                   ? AppColors.error
                   : _isFocused
-                  ? AppColors.primary.withOpacity(0.15)
+                  ? AppColors.primary.withValues(alpha: 0.15)
                   : Colors.transparent,
               width: AppDimensions.ghostBorderWidth,
             ),
