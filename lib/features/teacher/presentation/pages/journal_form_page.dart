@@ -138,11 +138,10 @@ class _JournalFormPageState extends State<JournalFormPage> {
   Future<void> _setCompressedImage(File source) async {
     try {
       final compressed = await _compressImageToLimit(source);
+      final sizeKb = (await compressed.length() / 1024).ceil();
       if (!mounted) return;
 
       context.read<JournalBloc>().add(SetAttachment(compressed));
-
-      final sizeKb = (await compressed.length() / 1024).ceil();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gambar siap diunggah ($sizeKb KB)')),
       );

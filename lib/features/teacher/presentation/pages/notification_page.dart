@@ -45,7 +45,7 @@ class _NotificationPageState extends State<NotificationPage> {
     await _repository.clearAll();
     if (!mounted) return;
     setState(() => _items = const []);
-    context.read<NotificationBloc>().add(const NotificationMarkedAllRead());
+    context.read<NotificationBloc>().add(const NotificationUnreadRequested());
   }
 
   Future<void> _markOneRead(AppNotification item) async {
@@ -76,6 +76,19 @@ class _NotificationPageState extends State<NotificationPage> {
   Future<void> _deleteOne(AppNotification item) async {
     await _repository.deleteNotification(item.id);
     if (!mounted) return;
+    setState(() {
+      _items = _items.where((e) => e.id != item.id).toList();
+    });
+    context.read<NotificationBloc>().add(const NotificationUnreadRequested());
+  }
+
+  Future<void> _markReadAndDelete(AppNotification item) async {
+    if (!item.isRead) {
+      await _repository.markRead(item.id);
+    }
+    await _repository.deleteNotification(item.id);
+    if (!mounted) return;
+
     setState(() {
       _items = _items.where((e) => e.id != item.id).toList();
     });
@@ -219,8 +232,8 @@ class _NotificationPageState extends State<NotificationPage> {
           await _deleteOne(item);
           return true;
         }
-        await _markOneRead(item);
-        return false;
+        await _markReadAndDelete(item);
+        return true;
       },
       child: _buildNotificationCard(item),
     );
@@ -357,6 +370,14 @@ class _NotificationPageState extends State<NotificationPage> {
         return const Color(0xFF2B4CC8);
       case 'inval_claim':
         return const Color(0xFFE11D48);
+      case 'inval_available':
+        return const Color(0xFFF59E0B);
+      case 'permission_submitted':
+        return const Color(0xFFF59E0B);
+      case 'permission_approved':
+        return const Color(0xFF16A34A);
+      case 'permission_rejected':
+        return const Color(0xFFDC2626);
       default:
         return const Color(0xFF64748B);
     }
@@ -370,6 +391,14 @@ class _NotificationPageState extends State<NotificationPage> {
         return const Color(0xFFE7ECFF);
       case 'inval_claim':
         return const Color(0xFFFFE4E6);
+      case 'inval_available':
+        return const Color(0xFFFFF4D6);
+      case 'permission_submitted':
+        return const Color(0xFFFFF4D6);
+      case 'permission_approved':
+        return const Color(0xFFDCFCE7);
+      case 'permission_rejected':
+        return const Color(0xFFFEE2E2);
       default:
         return const Color(0xFFE9EDF5);
     }
@@ -383,6 +412,14 @@ class _NotificationPageState extends State<NotificationPage> {
         return Icons.calendar_today_rounded;
       case 'inval_claim':
         return Icons.warning_amber_rounded;
+      case 'inval_available':
+        return Icons.event_repeat_rounded;
+      case 'permission_submitted':
+        return Icons.assignment_rounded;
+      case 'permission_approved':
+        return Icons.verified_rounded;
+      case 'permission_rejected':
+        return Icons.cancel_rounded;
       default:
         return Icons.notifications_none_rounded;
     }

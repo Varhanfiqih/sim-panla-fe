@@ -14,12 +14,10 @@ import '../../../teacher/data/models/permission.dart';
 import '../../../teacher/presentation/bloc/bloc.dart';
 import '../../../teacher/presentation/pages/check_in_page.dart';
 import '../../../teacher/presentation/pages/inval/inval_page.dart';
+import '../../../teacher/presentation/pages/notification_page.dart';
 import '../../../teacher/presentation/pages/profile_page.dart';
 import '../../../teacher/presentation/pages/qr_scanner_page.dart';
 import '../../../teacher/presentation/pages/schedule_page.dart';
-import '../../../teacher/presentation/bloc/permission/permission_bloc.dart';
-import '../../../teacher/presentation/bloc/permission/permission_event.dart';
-import '../../../teacher/presentation/bloc/permission/permission_state.dart';
 
 class BkDashboardPage extends StatefulWidget {
   const BkDashboardPage({super.key});
@@ -68,6 +66,12 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      final authState = context.read<AuthBloc>().state;
+      if (authState is AuthAuthenticated) {
+        context.read<NotificationBloc>().add(
+          NotificationStarted(authState.user.id),
+        );
+      }
       context.read<PermissionBloc>().add(LoadPermissions());
       context.read<AttendanceBloc>().add(const CheckAttendanceStatus());
       _loadBkData();
@@ -337,12 +341,29 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.notifications_outlined,
-                    color: Color(0xFF2250E8),
-                  ),
+                BlocBuilder<NotificationBloc, NotificationState>(
+                  builder: (context, notificationState) {
+                    return IconButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationPage(),
+                        ),
+                      ),
+                      icon: Badge(
+                        isLabelVisible: notificationState.unreadCount > 0,
+                        label: Text(
+                          notificationState.unreadCount > 99
+                              ? '99+'
+                              : '${notificationState.unreadCount}',
+                        ),
+                        child: const Icon(
+                          Icons.notifications_outlined,
+                          color: Color(0xFF2250E8),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -656,56 +677,61 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
 
   Widget _buildQuickMenu(int pendingCount) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: _line),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            'Menu Utama',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: _ink,
+            ),
+          ),
+          const SizedBox(height: 16),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: _menuTile(
+                child: _quickAccessItem(
                   icon: Icons.fact_check_rounded,
-                  label: 'Approval Izin ($pendingCount)',
-                  desc: 'Verifikasi awal BK',
-                  color: const Color(0xFF2250E8),
+                  label: 'Approval\nIzin',
+                  color: const Color(0xFF1458D6),
+                  background: const Color(0xFFE8ECFF),
+                  badgeCount: pendingCount,
                   onTap: () => setState(() => _selectedNavIndex = 1),
                 ),
               ),
-              const SizedBox(width: 10),
               Expanded(
-                child: _menuTile(
-                  icon: Icons.rule_folder_outlined,
-                  label: 'Monitoring Kelas',
-                  desc: 'Pantau & tindakan BK',
-                  color: const Color(0xFF7C3AED),
+                child: _quickAccessItem(
+                  icon: Icons.monitor_heart_rounded,
+                  label: 'Monitoring\nKelas',
+                  color: const Color(0xFFF59E0B),
+                  background: const Color(0xFFFFF4E5),
                   onTap: () => setState(() => _selectedNavIndex = 2),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
               Expanded(
-                child: _menuTile(
+                child: _quickAccessItem(
                   icon: Icons.menu_book_rounded,
-                  label: 'Jurnal Mengajar',
-                  desc: 'Jadwal & jurnal kelas',
-                  color: const Color(0xFF0F9D78),
+                  label: 'Jurnal\nMengajar',
+                  color: const Color(0xFF10B981),
+                  background: const Color(0xFFE7F8F4),
                   onTap: _openJournalMenu,
                 ),
               ),
-              const SizedBox(width: 10),
               Expanded(
-                child: _menuTile(
-                  icon: Icons.event_available_rounded,
-                  label: 'Jadwal Inval',
-                  desc: 'Lihat dan klaim kelas kosong',
-                  color: const Color(0xFFDB2777),
+                child: _quickAccessItem(
+                  icon: Icons.event_repeat_rounded,
+                  label: 'Jadwal\nInval',
+                  color: const Color(0xFF316DDB),
+                  background: const Color(0xFFEDF1FF),
                   onTap: () => setState(() => _selectedNavIndex = 6),
                 ),
               ),
@@ -716,60 +742,85 @@ class _BkDashboardPageState extends State<BkDashboardPage> {
     );
   }
 
-  Widget _menuTile({
+  Widget _quickAccessItem({
     required IconData icon,
     required String label,
-    required String desc,
     required Color color,
+    required Color background,
     required VoidCallback onTap,
+    int badgeCount = 0,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF9FAFF),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _line),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, size: 18, color: color),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final diameter = (constraints.maxWidth - 4)
+            .clamp(48.0, 56.0)
+            .toDouble();
+
+        return InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+            child: Column(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: diameter,
+                      height: diameter,
+                      decoration: BoxDecoration(
+                        color: background,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(icon, size: diameter * 0.47, color: color),
+                    ),
+                    if (badgeCount > 0)
+                      Positioned(
+                        top: -3,
+                        right: -3,
+                        child: Container(
+                          constraints: const BoxConstraints(
+                            minWidth: 19,
+                            minHeight: 19,
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDC2626),
+                            borderRadius: BorderRadius.circular(99),
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            badgeCount > 99 ? '99+' : '$badgeCount',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    height: 1.2,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF3B3F49),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: _ink,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              desc,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: _muted,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
