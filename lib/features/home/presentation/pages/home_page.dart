@@ -44,7 +44,7 @@ class HomePage extends StatelessWidget {
                 ),
                 const SizedBox(width: AppDimensions.spacing3),
                 Text(
-                  'SIM Panla',
+                  'SIM PANLA',
                   style: AppTextStyles.headlineSmall.copyWith(
                     color: AppColors.onSurface,
                   ),

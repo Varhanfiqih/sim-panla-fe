@@ -114,7 +114,7 @@ class SimPanlaApp extends StatelessWidget {
           ),
         ],
         child: MaterialApp(
-          title: 'SIM Panla',
+          title: 'SIM PANLA',
           debugShowCheckedModeBanner: false,
           theme: _buildTheme(),
           builder: (context, child) {
@@ -393,7 +393,7 @@ class _SplashScreen extends StatelessWidget {
             const SizedBox(height: AppDimensions.spacing6),
             // App Name
             Text(
-              'SIM Panla',
+              'SIM PANLA',
               style: GoogleFonts.manrope(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,

@@ -20,6 +20,8 @@ class QrScannerPage extends StatefulWidget {
 class _QrScannerPageState extends State<QrScannerPage>
     with WidgetsBindingObserver {
   late MobileScannerController _scannerController;
+  bool _isFrontCamera = false;
+  bool _isSwitchingCamera = false;
 
   // Colors from stitch design
   static const Color _primary = Color(0xFF0040DF);
@@ -88,6 +90,40 @@ class _QrScannerPageState extends State<QrScannerPage>
       _scannerController.start();
     } else {
       _scannerController.stop();
+    }
+  }
+
+  Future<void> _switchCamera(QrScanState state) async {
+    if (_isSwitchingCamera) return;
+
+    setState(() => _isSwitchingCamera = true);
+
+    try {
+      if (state is QrScanReady && state.flashlightOn) {
+        await _scannerController.toggleTorch();
+        if (mounted) {
+          context.read<QrScanBloc>().add(const ToggleFlashlight());
+        }
+      }
+
+      await _scannerController.switchCamera();
+
+      if (mounted) {
+        setState(() => _isFrontCamera = !_isFrontCamera);
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Kamera depan tidak tersedia pada perangkat ini.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSwitchingCamera = false);
+      }
     }
   }
 
@@ -296,11 +332,19 @@ class _QrScannerPageState extends State<QrScannerPage>
             ),
           ),
 
-          // Flashlight button
+          // Camera controls
           Positioned(
             top: MediaQuery.of(context).padding.top + 80,
             right: 24,
-            child: _buildFlashlightButton(state),
+            child: Column(
+              children: [
+                _buildCameraSwitchButton(state),
+                if (!_isFrontCamera) ...[
+                  const SizedBox(height: 12),
+                  _buildFlashlightButton(state),
+                ],
+              ],
+            ),
           ),
         ],
       ),
@@ -398,6 +442,40 @@ class _QrScannerPageState extends State<QrScannerPage>
             color: Colors.white,
             size: 24,
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCameraSwitchButton(QrScanState state) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _isSwitchingCamera ? null : () => _switchCamera(state),
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: Colors.white.withAlpha(26),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.white.withAlpha(51), width: 1),
+          ),
+          child: _isSwitchingCamera
+              ? const Padding(
+                  padding: EdgeInsets.all(14),
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : Icon(
+                  _isFrontCamera
+                      ? Icons.camera_rear_rounded
+                      : Icons.camera_front_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
         ),
       ),
     );

@@ -8,10 +8,9 @@ class ApiConstants {
   /// Use your LAN IP for a physical device, or 10.0.2.2 for the Android emulator.
   /// You can still override it with --dart-define=API_BASE_URL=... .
   static String get baseUrl => const String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://192.168.1.9:8000',
-  );
-
+  'API_BASE_URL',
+  defaultValue: 'https://sim-panla.my.id',
+);
   /// Production API Base URL (Commented out for local testing)
   // static const String baseUrl = 'https://smpn8.my.id';
 

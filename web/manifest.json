@@ -1,11 +1,11 @@
 {
-    "name": "sim_spanla_fe",
-    "short_name": "sim_spanla_fe",
+    "name": "SIM PANLA",
+    "short_name": "SIM PANLA",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "SIM PANLA - Digital Academy Ecosystem",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

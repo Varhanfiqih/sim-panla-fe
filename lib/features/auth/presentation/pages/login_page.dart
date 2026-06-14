@@ -178,17 +178,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildLogoSection() {
     return Column(
       children: [
-        // Logo Icon
+        // Tut Wuri Handayani logo
         Container(
-          width: 64,
-          height: 64,
+          width: 88,
+          height: 88,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [_primary, _primaryContainer],
-            ),
-            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
                 color: _primary.withValues(alpha: 0.2),
@@ -197,7 +191,11 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ],
           ),
-          child: const Icon(Icons.school, color: Colors.white, size: 36),
+          child: Image.asset(
+            'assets/images/tut_wuri_handayani.png',
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
+          ),
         ),
         const SizedBox(height: 16),
         // App Name
@@ -214,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               TextSpan(
-                text: 'Panla',
+                text: 'PANLA',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 30,
                   fontWeight: FontWeight.w800,
