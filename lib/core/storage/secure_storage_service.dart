@@ -78,6 +78,33 @@ class SecureStorageService {
     return token != null && token.isNotEmpty;
   }
 
+  Future<void> saveRememberedLogin({
+    required String nip,
+    required String password,
+  }) async {
+    await saveBool(_Keys.rememberLogin, true);
+    await saveString(_Keys.rememberedNip, nip);
+    await _secureStorage.write(key: _Keys.rememberedPassword, value: password);
+  }
+
+  String? getRememberedNip() {
+    return getString(_Keys.rememberedNip);
+  }
+
+  Future<String?> getRememberedPassword() async {
+    return await _secureStorage.read(key: _Keys.rememberedPassword);
+  }
+
+  bool shouldRememberLogin() {
+    return getBool(_Keys.rememberLogin) ?? false;
+  }
+
+  Future<void> clearRememberedLogin() async {
+    await remove(_Keys.rememberLogin);
+    await remove(_Keys.rememberedNip);
+    await _secureStorage.delete(key: _Keys.rememberedPassword);
+  }
+
   /// Clear all secure data (logout)
   Future<void> clearSecureData() async {
     await deleteAccessToken();
@@ -225,6 +252,9 @@ class _Keys {
   static const String accessToken = 'access_token';
   static const String refreshToken = 'refresh_token';
   static const String userData = 'user_data';
+  static const String rememberLogin = 'remember_login';
+  static const String rememberedNip = 'remembered_nip';
+  static const String rememberedPassword = 'remembered_password';
   static const String lastSyncTime = 'last_sync_time';
   static const String language = 'language';
   static const String themeMode = 'theme_mode';

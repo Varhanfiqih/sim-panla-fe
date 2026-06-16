@@ -20,6 +20,10 @@ class NotificationUnreadRequested extends NotificationEvent {
   const NotificationUnreadRequested();
 }
 
+class NotificationPollRequested extends NotificationEvent {
+  const NotificationPollRequested();
+}
+
 class NotificationMarkedAllRead extends NotificationEvent {
   const NotificationMarkedAllRead();
 }

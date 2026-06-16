@@ -73,28 +73,6 @@ class _NotificationPageState extends State<NotificationPage> {
     context.read<NotificationBloc>().add(const NotificationUnreadRequested());
   }
 
-  Future<void> _deleteOne(AppNotification item) async {
-    await _repository.deleteNotification(item.id);
-    if (!mounted) return;
-    setState(() {
-      _items = _items.where((e) => e.id != item.id).toList();
-    });
-    context.read<NotificationBloc>().add(const NotificationUnreadRequested());
-  }
-
-  Future<void> _markReadAndDelete(AppNotification item) async {
-    if (!item.isRead) {
-      await _repository.markRead(item.id);
-    }
-    await _repository.deleteNotification(item.id);
-    if (!mounted) return;
-
-    setState(() {
-      _items = _items.where((e) => e.id != item.id).toList();
-    });
-    context.read<NotificationBloc>().add(const NotificationUnreadRequested());
-  }
-
   @override
   Widget build(BuildContext context) {
     final todayItems = _items.where((e) => _isToday(e.createdAt)).toList();
@@ -160,82 +138,19 @@ class _NotificationPageState extends State<NotificationPage> {
                         if (todayItems.isNotEmpty) ...[
                           _buildSectionHeader('Hari Ini', todayItems),
                           const SizedBox(height: 10),
-                          ...todayItems.map((e) => _buildDismissibleCard(e)),
+                          ...todayItems.map(_buildNotificationCard),
                         ],
                         if (yesterdayItems.isNotEmpty ||
                             olderItems.isNotEmpty) ...[
                           const SizedBox(height: 18),
                           _buildSectionHeader('Kemarin', const []),
                           const SizedBox(height: 10),
-                          ...yesterdayItems.map(
-                            (e) => _buildDismissibleCard(e),
-                          ),
-                          ...olderItems.map((e) => _buildDismissibleCard(e)),
+                          ...yesterdayItems.map(_buildNotificationCard),
+                          ...olderItems.map(_buildNotificationCard),
                         ],
                       ],
                     ),
             ),
-    );
-  }
-
-  Widget _buildDismissibleCard(AppNotification item) {
-    return Dismissible(
-      key: ValueKey(item.id),
-      direction: DismissDirection.horizontal,
-      background: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(horizontal: 18),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFEE2E2),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.delete_rounded, color: Color(0xFFB91C1C)),
-            const SizedBox(width: 8),
-            Text(
-              'Hapus',
-              style: GoogleFonts.inter(
-                color: const Color(0xFFB91C1C),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-      secondaryBackground: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: 18),
-        decoration: BoxDecoration(
-          color: const Color(0xFFDBEAFE),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              'Tandai Dibaca',
-              style: GoogleFonts.inter(
-                color: const Color(0xFF1D4ED8),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.mark_email_read_rounded, color: Color(0xFF1D4ED8)),
-          ],
-        ),
-      ),
-      confirmDismiss: (direction) async {
-        if (direction == DismissDirection.startToEnd) {
-          await _deleteOne(item);
-          return true;
-        }
-        await _markReadAndDelete(item);
-        return true;
-      },
-      child: _buildNotificationCard(item),
     );
   }
 

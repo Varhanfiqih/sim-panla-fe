@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/storage/secure_storage_service.dart';
 import '../bloc/bloc.dart';
 
 /// Login Page following the exact stitch design (s_01_login_screen_new_style)
@@ -13,6 +14,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _storage = SecureStorageService();
   final _nipController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
@@ -33,10 +35,42 @@ class _LoginPageState extends State<LoginPage> {
   static const Color _error = Color(0xFFBA1A1A);
 
   @override
+  void initState() {
+    super.initState();
+    _loadRememberedLogin();
+  }
+
+  @override
   void dispose() {
     _nipController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadRememberedLogin() async {
+    if (!_storage.shouldRememberLogin()) return;
+
+    final rememberedNip = _storage.getRememberedNip();
+    final rememberedPassword = await _storage.getRememberedPassword();
+    if (!mounted) return;
+
+    setState(() {
+      _rememberMe = true;
+      _nipController.text = rememberedNip ?? '';
+      _passwordController.text = rememberedPassword ?? '';
+    });
+  }
+
+  Future<void> _saveRememberedLoginPreference() async {
+    if (_rememberMe) {
+      await _storage.saveRememberedLogin(
+        nip: _nipController.text.trim(),
+        password: _passwordController.text,
+      );
+      return;
+    }
+
+    await _storage.clearRememberedLogin();
   }
 
   bool _validate() {
@@ -62,8 +96,14 @@ class _LoginPageState extends State<LoginPage> {
     return isValid;
   }
 
-  void _handleLogin() {
+  Future<void> _handleLogin() async {
     if (_validate()) {
+      if (!_rememberMe) {
+        await _storage.clearRememberedLogin();
+      }
+
+      if (!mounted) return;
+
       context.read<AuthBloc>().add(
         AuthLoginRequested(
           nip: _nipController.text.trim(),
@@ -79,6 +119,10 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: _surface,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
+          if (state is AuthAuthenticated) {
+            _saveRememberedLoginPreference();
+          }
+
           if (state is AuthLoginFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -382,92 +426,15 @@ class _LoginPageState extends State<LoginPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 4, right: 4),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final compact = constraints.maxWidth < 300;
-
-              if (compact) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'PASSWORD',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                        color: _onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    GestureDetector(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text(
-                              'Hubungi admin untuk reset password',
-                            ),
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            margin: const EdgeInsets.all(16),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'Forgot Password?',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: _primary,
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }
-
-              return Row(
-                children: [
-                  Text(
-                    'PASSWORD',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                      color: _onSurfaceVariant,
-                    ),
-                  ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text(
-                            'Hubungi admin untuk reset password',
-                          ),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          margin: const EdgeInsets.all(16),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'Forgot Password?',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: _primary,
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            'PASSWORD',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+              color: _onSurfaceVariant,
+            ),
           ),
         ),
         const SizedBox(height: 8),

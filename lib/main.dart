@@ -7,6 +7,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'core/constants/app_colors.dart';
 import 'core/constants/app_dimensions.dart';
 import 'core/network/dio_client.dart';
+import 'core/services/local_notification_service.dart';
+import 'core/storage/secure_storage_service.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/presentation/bloc/bloc.dart';
 import 'features/auth/presentation/pages/login_page.dart';
@@ -36,7 +38,9 @@ void main() async {
   );
 
   // Initialize DioClient (singleton)
+  await SecureStorageService().init();
   DioClient().init();
+  await LocalNotificationService().initialize();
 
   // Initialize repositories
   final authRepository = AuthRepository();

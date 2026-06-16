@@ -61,14 +61,6 @@ class NotificationRepository {
     }
   }
 
-  Future<void> deleteNotification(int id) async {
-    final endpoint = ApiConstants.notificationDelete.replaceAll('{id}', '$id');
-    final response = await _dioClient.delete(endpoint);
-    if (response.data['status'] != 'success') {
-      throw Exception(response.data['message'] ?? 'Gagal menghapus notifikasi');
-    }
-  }
-
   Future<void> clearAll() async {
     final response = await _dioClient.delete(ApiConstants.notificationClearAll);
     if (response.data['status'] != 'success') {
