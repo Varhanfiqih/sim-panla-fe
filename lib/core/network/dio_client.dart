@@ -14,6 +14,7 @@ class DioClient {
 
   late Dio _dio;
   final _storage = SecureStorageService();
+  void Function()? onUnauthorized;
   final _logger = Logger(
     printer: PrettyPrinter(
       methodCount: 0,
@@ -42,10 +43,7 @@ class DioClient {
           ApiConstants.headerContentType: ApiConstants.contentTypeJson,
           ApiConstants.headerAccept: ApiConstants.contentTypeJson,
         },
-        validateStatus: (status) {
-          // Accept all status codes to handle them manually
-          return status != null && status < 500;
-        },
+        validateStatus: (status) => status != null && status < 400,
       ),
     );
 
@@ -74,13 +72,7 @@ class DioClient {
         return handler.next(options);
       },
       onError: (error, handler) async {
-        // Handle 401 Unauthorized - token expired
-        if (error.response?.statusCode == ApiConstants.statusUnauthorized) {
-          _logger.w('Token expired, clearing session');
-
-          // Clear storage
-          await _storage.clearSecureData();
-        }
+        await _handleUnauthorizedResponse(error.response?.statusCode);
 
         return handler.next(error);
       },
@@ -136,7 +128,8 @@ class DioClient {
   /// Converts DioException to custom ApiException with friendly messages
   Interceptor _errorInterceptor() {
     return InterceptorsWrapper(
-      onError: (error, handler) {
+      onError: (error, handler) async {
+        await _handleUnauthorizedResponse(error.response?.statusCode);
         final apiException = _handleError(error);
         return handler.reject(
           DioException(
@@ -148,6 +141,17 @@ class DioClient {
         );
       },
     );
+  }
+
+  Future<void> _handleUnauthorizedResponse(int? statusCode) async {
+    if (statusCode != ApiConstants.statusUnauthorized) return;
+
+    final hadToken = await _storage.isLoggedIn();
+    if (!hadToken) return;
+
+    _logger.w('Token expired, clearing session');
+    await _storage.clearSecureData();
+    onUnauthorized?.call();
   }
 
   /// Handle and convert DioException to ApiException
@@ -191,7 +195,7 @@ class DioClient {
         switch (statusCode) {
           case ApiConstants.statusUnauthorized:
             return ApiException(
-              message: ApiConstants.errorUnauthorized,
+              message: _unauthorizedMessage(message),
               statusCode: statusCode,
               type: ApiExceptionType.unauthorized,
             );
@@ -243,6 +247,17 @@ class DioClient {
           type: ApiExceptionType.network,
         );
     }
+  }
+
+  String _unauthorizedMessage(String message) {
+    final normalized = message.trim();
+    if (normalized.isNotEmpty &&
+        normalized != ApiConstants.errorUnknown &&
+        normalized.toLowerCase() != 'unauthenticated.') {
+      return normalized;
+    }
+
+    return ApiConstants.errorUnauthorized;
   }
 
   // ==========================================================================

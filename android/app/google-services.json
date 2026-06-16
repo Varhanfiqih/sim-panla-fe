@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "341231616182",
+    "project_id": "sim-panla",
+    "storage_bucket": "sim-panla.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:341231616182:android:b3e053c34467532377e617",
+        "android_client_info": {
+          "package_name": "com.example.sim_spanla_fe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0hc4DVz1DJ90vVO8b02t5zzyDBJ-VKj8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

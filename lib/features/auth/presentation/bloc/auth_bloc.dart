@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/services/push_notification_service.dart';
 import '../../data/repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -29,26 +30,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthChecking());
 
     try {
+      if (await _authRepository.hasExpiredBackgroundSession()) {
+        await _authRepository.clearBackgroundedAt();
+        await _authRepository.logout();
+        emit(const AuthUnauthenticated());
+        return;
+      }
+
       final isLoggedIn = await _authRepository.isLoggedIn();
 
       if (isLoggedIn) {
-        final user = await _authRepository.getCurrentUser();
-        if (user != null) {
-          // Check if user is Admin - force logout on mobile
-          if (user.isAdmin) {
-            await _authRepository.logout();
-            emit(const AuthUnauthenticated());
-            return;
-          }
-
-          emit(AuthAuthenticated(user: user));
-        } else {
+        final user = await _authRepository.getProfile();
+        await _authRepository.clearBackgroundedAt();
+        // Only teacher-facing roles can access the mobile app.
+        if (!user.canAccessMobile) {
+          await _authRepository.logout();
           emit(const AuthUnauthenticated());
+          return;
         }
+
+        await PushNotificationService().registerCurrentToken();
+        emit(AuthAuthenticated(user: user));
       } else {
         emit(const AuthUnauthenticated());
       }
     } catch (e) {
+      await _authRepository.logout();
       emit(const AuthUnauthenticated());
     }
   }
@@ -66,15 +73,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: event.password,
       );
 
-      // Check if user is Admin - reject login on mobile
-      if (loginData.user.isAdmin) {
+      // Reject web panel roles on mobile.
+      if (!loginData.user.canAccessMobile) {
         // Logout to clear token
         await _authRepository.logout();
 
         emit(
           const AuthLoginFailure(
             message:
-                'Admin hanya dapat mengakses sistem melalui Web. Silakan gunakan browser untuk login.',
+                'Akun ini hanya dapat mengakses sistem melalui Web Panel. Silakan login mobile menggunakan akun Guru Mapel, Wali Kelas, atau Guru BK.',
           ),
         );
 
@@ -83,6 +90,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         return;
       }
 
+      await PushNotificationService().registerCurrentToken();
       emit(AuthAuthenticated(user: loginData.user));
     } catch (e) {
       String errorMessage = 'Login gagal';
@@ -107,6 +115,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthLogoutInProgress());
 
     try {
+      await PushNotificationService().unregisterCurrentToken();
       await _authRepository.logout();
       emit(const AuthUnauthenticated());
     } catch (e) {

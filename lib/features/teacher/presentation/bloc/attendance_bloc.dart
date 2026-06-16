@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../data/repositories/attendance_repository.dart';
 import 'attendance_event.dart';
 import 'attendance_state.dart';
@@ -31,7 +32,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         ),
       );
     } catch (e) {
-      emit(AttendanceError(message: e.toString()));
+      emit(AttendanceError(message: _errorMessage(e)));
     }
   }
 
@@ -54,7 +55,13 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       // After successful check-in, reload status
       add(const CheckAttendanceStatus());
     } catch (e) {
-      emit(AttendanceError(message: e.toString()));
+      emit(AttendanceError(message: _errorMessage(e)));
     }
+  }
+
+  String _errorMessage(Object error) {
+    if (error is ApiException) return error.message;
+    final message = error.toString();
+    return message.replaceFirst(RegExp(r'^Exception:\s*'), '');
   }
 }

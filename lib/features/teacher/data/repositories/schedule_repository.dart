@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/schedule.dart';
 
@@ -22,8 +23,12 @@ class ScheduleRepository {
       );
 
       return ScheduleResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      final error = e.error;
+      if (error is ApiException) throw error;
+      throw Exception('Gagal memuat jadwal');
     } catch (e) {
-      throw Exception('Gagal memuat jadwal: ${e.toString()}');
+      throw Exception('Gagal memuat jadwal: $e');
     }
   }
 }

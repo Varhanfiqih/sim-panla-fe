@@ -8,6 +8,10 @@ import '../models/login_response.dart';
 
 /// Auth Repository for handling authentication API calls
 class AuthRepository {
+  static const Duration autoLogoutTimeout = Duration(hours: 1);
+  static const String autoLogoutBackgroundedAtKey =
+      'auto_logout_backgrounded_at';
+
   final DioClient _dioClient;
   final SecureStorageService _storage;
 
@@ -45,6 +49,7 @@ class AuthRepository {
       final loginData = apiResponse.data!;
 
       // Save token and user data to secure storage
+      await clearBackgroundedAt();
       await _storage.saveAccessToken(loginData.token);
       await _storage.saveUserData(jsonEncode(loginData.user.toJson()));
 
@@ -71,7 +76,27 @@ class AuthRepository {
     } finally {
       // Always clear local storage
       await _storage.clearSecureData();
+      await clearBackgroundedAt();
     }
+  }
+
+  Future<bool> hasExpiredBackgroundSession() async {
+    final storedAt = _storage.getString(autoLogoutBackgroundedAtKey);
+    final backgroundedAt = DateTime.tryParse(storedAt ?? '');
+    if (backgroundedAt == null) return false;
+
+    return DateTime.now().difference(backgroundedAt) >= autoLogoutTimeout;
+  }
+
+  Future<void> markBackgroundedAt(DateTime dateTime) async {
+    await _storage.saveString(
+      autoLogoutBackgroundedAtKey,
+      dateTime.toIso8601String(),
+    );
+  }
+
+  Future<void> clearBackgroundedAt() async {
+    await _storage.remove(autoLogoutBackgroundedAtKey);
   }
 
   /// Get current user from storage
@@ -150,9 +175,7 @@ class AuthRepository {
         );
       }
 
-      final user = User.fromJson(
-        response.data['data'] as Map<String, dynamic>,
-      );
+      final user = User.fromJson(response.data['data'] as Map<String, dynamic>);
       await _storage.saveUserData(jsonEncode(user.toJson()));
       return user;
     } on DioException catch (e) {
@@ -177,9 +200,7 @@ class AuthRepository {
         );
       }
 
-      final user = User.fromJson(
-        response.data['data'] as Map<String, dynamic>,
-      );
+      final user = User.fromJson(response.data['data'] as Map<String, dynamic>);
       await _storage.saveUserData(jsonEncode(user.toJson()));
       return user;
     } on DioException catch (e) {

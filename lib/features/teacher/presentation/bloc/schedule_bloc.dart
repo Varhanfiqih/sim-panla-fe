@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../data/models/schedule.dart';
 import '../../data/repositories/schedule_repository.dart';
 import 'package:intl/intl.dart';
@@ -36,7 +37,7 @@ class ScheduleBloc extends Bloc<ScheduleEvent, ScheduleState> {
         ),
       );
     } catch (e) {
-      emit(ScheduleError(e.toString()));
+      emit(ScheduleError(_errorMessage(e)));
     }
   }
 
@@ -59,7 +60,13 @@ class ScheduleBloc extends Bloc<ScheduleEvent, ScheduleState> {
         ),
       );
     } catch (e) {
-      emit(ScheduleError(e.toString()));
+      emit(ScheduleError(_errorMessage(e)));
     }
+  }
+
+  String _errorMessage(Object error) {
+    if (error is ApiException) return error.message;
+    final message = error.toString();
+    return message.replaceFirst(RegExp(r'^Exception:\s*'), '');
   }
 }

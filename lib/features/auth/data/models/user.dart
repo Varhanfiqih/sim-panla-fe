@@ -48,8 +48,15 @@ class User extends Equatable {
   /// Convert User to JSON
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
-  /// Check if user is Admin
-  bool get isAdmin => role == 'Admin';
+  /// Check if user can access the mobile app.
+  bool get canAccessMobile => isGuru || isGuruBK;
+
+  /// Check if user belongs to the web panel roles.
+  bool get isPanelUser =>
+      role == 'Admin' ||
+      role == 'Super Admin' ||
+      role == 'Admin IT' ||
+      role == 'Kepala Sekolah';
 
   /// Check if user is Guru (Teacher)
   bool get isGuru => role == 'Guru';

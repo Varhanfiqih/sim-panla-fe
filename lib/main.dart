@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +10,7 @@ import 'core/constants/app_colors.dart';
 import 'core/constants/app_dimensions.dart';
 import 'core/network/dio_client.dart';
 import 'core/services/local_notification_service.dart';
+import 'core/services/push_notification_service.dart';
 import 'core/storage/secure_storage_service.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/presentation/bloc/bloc.dart';
@@ -41,6 +44,7 @@ void main() async {
   await SecureStorageService().init();
   DioClient().init();
   await LocalNotificationService().initialize();
+  await PushNotificationService().initialize();
 
   // Initialize repositories
   final authRepository = AuthRepository();
@@ -130,7 +134,7 @@ class SimPanlaApp extends StatelessWidget {
               child: child ?? const SizedBox.shrink(),
             );
           },
-          home: const AuthNavigator(),
+          home: const AutoLogoutOnBackground(child: AuthNavigator()),
         ),
       ),
     );
@@ -314,6 +318,101 @@ class SimPanlaApp extends StatelessWidget {
       ),
     );
   }
+}
+
+class AutoLogoutOnBackground extends StatefulWidget {
+  static const timeout = AuthRepository.autoLogoutTimeout;
+
+  final Widget child;
+
+  const AutoLogoutOnBackground({super.key, required this.child});
+
+  @override
+  State<AutoLogoutOnBackground> createState() => _AutoLogoutOnBackgroundState();
+}
+
+class _AutoLogoutOnBackgroundState extends State<AutoLogoutOnBackground>
+    with WidgetsBindingObserver {
+  Timer? _logoutTimer;
+  DateTime? _backgroundedAt;
+  final AuthRepository _authRepository = AuthRepository();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    DioClient().onUnauthorized = _requestLogout;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _logoutIfStoredTimeoutExpired();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    DioClient().onUnauthorized = null;
+    _logoutTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _handleAppResumed();
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.detached) {
+      _startLogoutCountdown();
+    }
+  }
+
+  void _startLogoutCountdown() {
+    final now = _backgroundedAt ?? DateTime.now();
+    _backgroundedAt = now;
+    unawaited(_authRepository.markBackgroundedAt(now));
+
+    _logoutTimer?.cancel();
+    _logoutTimer = Timer(AutoLogoutOnBackground.timeout, _requestLogout);
+  }
+
+  Future<void> _handleAppResumed() async {
+    final isExpired = await _authRepository.hasExpiredBackgroundSession();
+
+    _backgroundedAt = null;
+    await _authRepository.clearBackgroundedAt();
+    _logoutTimer?.cancel();
+    _logoutTimer = null;
+
+    if (isExpired) {
+      _requestLogout();
+    }
+  }
+
+  Future<void> _logoutIfStoredTimeoutExpired() async {
+    if (!mounted) return;
+
+    if (await _authRepository.hasExpiredBackgroundSession()) {
+      await _authRepository.clearBackgroundedAt();
+      _requestLogout();
+    }
+  }
+
+  void _requestLogout() {
+    if (!mounted) return;
+
+    final authBloc = context.read<AuthBloc>();
+    final state = authBloc.state;
+    if (state is AuthAuthenticated || state is AuthRefreshingUser) {
+      authBloc.add(const AuthLogoutRequested());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// Navigator widget that handles authentication state routing

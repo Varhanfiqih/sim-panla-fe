@@ -86,6 +86,7 @@ class ApiConstants {
   static const String notificationMarkAllRead = '/notifications/mark-all-read';
   static const String notificationDelete = '/notifications/{id}';
   static const String notificationClearAll = '/notifications/clear-all';
+  static const String deviceTokens = '/device-tokens';
 
   // Grade Endpoints
   static const String gradesMeta = '/grades/meta';

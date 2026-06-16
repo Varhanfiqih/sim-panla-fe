@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/inval_class.dart';
 import '../models/inval_history_item.dart';
@@ -17,6 +18,10 @@ class InvalRepository {
           response.data['message'] ?? 'Failed to load inval classes',
         );
       }
+    } on DioException catch (e) {
+      final error = e.error;
+      if (error is ApiException) throw error;
+      throw Exception('Gagal memuat jadwal inval');
     } catch (e) {
       throw Exception('Gagal memuat jadwal inval: $e');
     }
@@ -34,6 +39,10 @@ class InvalRepository {
       } else {
         throw Exception(response.data['message'] ?? 'Gagal klaim kelas');
       }
+    } on DioException catch (e) {
+      final error = e.error;
+      if (error is ApiException) throw error;
+      throw Exception('Gagal klaim kelas');
     } catch (e) {
       throw Exception('Gagal klaim kelas: $e');
     }
@@ -51,6 +60,10 @@ class InvalRepository {
       throw Exception(
         response.data['message'] ?? 'Failed to load inval history',
       );
+    } on DioException catch (e) {
+      final error = e.error;
+      if (error is ApiException) throw error;
+      throw Exception('Gagal memuat riwayat klaim inval');
     } catch (e) {
       throw Exception('Gagal memuat riwayat klaim inval: $e');
     }

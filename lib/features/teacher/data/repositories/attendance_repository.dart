@@ -21,9 +21,9 @@ class AttendanceRepository {
         );
       }
     } on DioException catch (e) {
-      throw Exception(
-        e.response?.data['message'] ?? 'Gagal mengecek status kehadiran',
-      );
+      final error = e.error;
+      if (error is ApiException) throw error;
+      throw Exception('Gagal mengecek status kehadiran');
     }
   }
 
@@ -53,9 +53,9 @@ class AttendanceRepository {
         );
       }
     } on DioException catch (e) {
-      throw Exception(
-        e.response?.data['message'] ?? 'Gagal menyimpan konfirmasi kehadiran',
-      );
+      final error = e.error;
+      if (error is ApiException) throw error;
+      throw Exception('Gagal menyimpan konfirmasi kehadiran');
     }
   }
 }
