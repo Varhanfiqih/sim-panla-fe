@@ -9,12 +9,14 @@ class LoadJournalStudents extends JournalEvent {
   final String className;
   final String subjectName;
   final String timeSlot;
+  final String? journalDate;
 
   LoadJournalStudents({
     required this.scheduleId,
     required this.className,
     required this.subjectName,
     required this.timeSlot,
+    this.journalDate,
   });
 }
 

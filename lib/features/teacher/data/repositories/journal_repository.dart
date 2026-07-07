@@ -12,9 +12,12 @@ class JournalRepository {
 
   /// Get students list for journal attendance
   /// GET /journal/students/{schedule_id}
-  Future<JournalStudentsData> getStudents(int scheduleId) async {
+  Future<JournalStudentsData> getStudents(int scheduleId, {String? date}) async {
     try {
-      final response = await _client.get('/journal/students/$scheduleId');
+      final response = await _client.get(
+        '/journal/students/$scheduleId',
+        queryParameters: date == null ? null : {'date': date},
+      );
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -51,6 +54,7 @@ class JournalRepository {
         'kebersihan_kelas': request.kebersihanKelas ?? '',
         'koordinat': request.koordinat ?? '',
         'is_inval': request.isInval ? 1 : 0,
+        if (request.journalDate != null) 'journal_date': request.journalDate,
         'attendances': attendancePayload,
       });
 

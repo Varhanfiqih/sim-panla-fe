@@ -316,7 +316,7 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   String _getMonthYear() {
-    final now = DateTime.now();
+    final selectedDate = _selectedDate();
     final months = [
       'Januari',
       'Februari',
@@ -331,7 +331,28 @@ class _SchedulePageState extends State<SchedulePage> {
       'November',
       'Desember',
     ];
-    return '${months[now.month - 1]} ${now.year}';
+    return '${months[selectedDate.month - 1]} ${selectedDate.year}';
+  }
+
+  DateTime _selectedDate() {
+    final state = context.read<ScheduleBloc>().state;
+    if (state is ScheduleLoaded) {
+      return state.selectedDate;
+    }
+
+    return DateTime.now();
+  }
+
+  String _formatDateParam(DateTime date) {
+    return '${date.year.toString().padLeft(4, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
+  }
+
+  void _reloadSelectedDate() {
+    context.read<ScheduleBloc>().add(
+      LoadSchedules(date: _formatDateParam(_selectedDate())),
+    );
   }
 
   Widget _buildDatePicker() {
@@ -342,9 +363,10 @@ class _SchedulePageState extends State<SchedulePage> {
           selectedDate = state.selectedDate;
         }
 
-        // Generate dates for the week (3 days before, today, 3 days after)
+        // Generate dates around the selected date so the picker does not jump
+        // back to today after choosing another day.
         final dates = List.generate(7, (index) {
-          return DateTime.now().add(Duration(days: index - 3));
+          return selectedDate.add(Duration(days: index - 3));
         });
 
         return SizedBox(
@@ -563,7 +585,7 @@ class _SchedulePageState extends State<SchedulePage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Anda tidak memiliki jadwal mengajar pada hari ini',
+              'Anda tidak memiliki jadwal mengajar pada tanggal yang dipilih',
               style: GoogleFonts.inter(fontSize: 14, color: _onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
@@ -772,7 +794,7 @@ class _SchedulePageState extends State<SchedulePage> {
                         ),
                       );
                     } else if (isOpen) {
-                      Navigator.push(
+                      Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
                           builder: (_) => JournalStudentListPageWithFAB(
@@ -781,9 +803,15 @@ class _SchedulePageState extends State<SchedulePage> {
                             subjectName: schedule.subject,
                             timeSlot:
                                 '${schedule.timeSlot.startTime} - ${schedule.timeSlot.endTime}',
+                            journalDate: _formatDateParam(_selectedDate()),
                           ),
                         ),
-                      );
+                      ).then((submitted) {
+                        if (!mounted) return;
+                        if (submitted == true) {
+                          _reloadSelectedDate();
+                        }
+                      });
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -822,8 +850,7 @@ class _SchedulePageState extends State<SchedulePage> {
                           journalId: schedule.journalId ?? 0,
                           subjectName: schedule.subject,
                           className: schedule.className,
-                          date:
-                              _getMonthYear(), // Can pass exact date from selectedDate
+                          date: _formatDateParam(_selectedDate()),
                           timeSlot:
                               '${schedule.timeSlot.startTime} - ${schedule.timeSlot.endTime}',
                         ),

@@ -1,0 +1,319 @@
+<mxfile host="app.diagrams.net" modified="2026-06-22T00:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="iterasi-2" name="Iterasi 2">
+    <mxGraphModel dx="2200" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1540" pageHeight="1898" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="iterasi-2-title" value="Iterasi 2 - Data Siswa/Kelas, Izin/Inval, Nilai, Presensi, Laporan, Export" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=18;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="10" width="1460" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-p-0" value="Super Admin" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="15" y="45" width="130" height="54" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-life-0" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="115" as="sourcePoint"/>
+            <mxPoint x="80" y="1853" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-p-1" value="Admin IT" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="220" y="45" width="130" height="54" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-life-1" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="285" y="115" as="sourcePoint"/>
+            <mxPoint x="285" y="1853" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-p-2" value="Kepala Sekolah" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="425" y="45" width="130" height="54" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-life-2" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="490" y="115" as="sourcePoint"/>
+            <mxPoint x="490" y="1853" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-p-3" value="Web Panel" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="630" y="45" width="130" height="54" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-life-3" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="115" as="sourcePoint"/>
+            <mxPoint x="695" y="1853" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-p-4" value="Laravel Backend" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="835" y="45" width="130" height="54" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-life-4" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="115" as="sourcePoint"/>
+            <mxPoint x="900" y="1853" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-p-5" value="Database" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="45" width="130" height="54" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-life-5" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1105" y="115" as="sourcePoint"/>
+            <mxPoint x="1105" y="1853" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-p-6" value="File Storage" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1245" y="45" width="130" height="54" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-life-6" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1310" y="115" as="sourcePoint"/>
+            <mxPoint x="1310" y="1853" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-0" value="Kelola data siswa dan kelas" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="143" as="sourcePoint"/>
+            <mxPoint x="695" y="143" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-act-0" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="688" y="133" width="14" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-1" value="Request siswa dan kelas" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="189" as="sourcePoint"/>
+            <mxPoint x="900" y="189" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-2" value="Query students dan school_classes" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="235" as="sourcePoint"/>
+            <mxPoint x="1105" y="235" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-3" value="Data siswa dan kelas" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1105" y="281" as="sourcePoint"/>
+            <mxPoint x="900" y="281" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-4" value="Kirim data" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="327" as="sourcePoint"/>
+            <mxPoint x="695" y="327" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-5" value="Tampilkan daftar" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="373" as="sourcePoint"/>
+            <mxPoint x="80" y="373" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-6" value="Tambah/Edit/Hapus siswa atau kelas" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="419" as="sourcePoint"/>
+            <mxPoint x="695" y="419" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-7" value="Kirim perubahan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="465" as="sourcePoint"/>
+            <mxPoint x="900" y="465" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-8" value="Simpan data siswa/kelas" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="511" as="sourcePoint"/>
+            <mxPoint x="1105" y="511" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-act-8" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1098" y="501" width="14" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-9" value="Data tersimpan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1105" y="557" as="sourcePoint"/>
+            <mxPoint x="900" y="557" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-10" value="Monitoring izin siswa dan penugasan inval" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="285" y="603" as="sourcePoint"/>
+            <mxPoint x="695" y="603" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-11" value="Request data izin dan inval" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="649" as="sourcePoint"/>
+            <mxPoint x="900" y="649" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-12" value="Query permissions dan inval_assignments" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="695" as="sourcePoint"/>
+            <mxPoint x="1105" y="695" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-13" value="Data monitoring" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1105" y="741" as="sourcePoint"/>
+            <mxPoint x="900" y="741" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-14" value="Kirim data monitoring" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="787" as="sourcePoint"/>
+            <mxPoint x="695" y="787" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-15" value="Tampilkan daftar izin dan inval" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="833" as="sourcePoint"/>
+            <mxPoint x="285" y="833" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-16" value="Kelola nilai dan pengaturan presensi" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="879" as="sourcePoint"/>
+            <mxPoint x="695" y="879" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-act-16" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="688" y="869" width="14" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-17" value="Request data nilai/presensi" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="925" as="sourcePoint"/>
+            <mxPoint x="900" y="925" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-18" value="Query nilai, kategori, periode, app_settings" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="971" as="sourcePoint"/>
+            <mxPoint x="1105" y="971" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-19" value="Data nilai dan pengaturan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1105" y="1017" as="sourcePoint"/>
+            <mxPoint x="900" y="1017" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-20" value="Input/Edit nilai atau pengaturan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="1063" as="sourcePoint"/>
+            <mxPoint x="695" y="1063" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-21" value="Simpan perubahan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="1109" as="sourcePoint"/>
+            <mxPoint x="900" y="1109" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-22" value="Update data" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="1155" as="sourcePoint"/>
+            <mxPoint x="1105" y="1155" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-23" value="Berhasil" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1105" y="1201" as="sourcePoint"/>
+            <mxPoint x="900" y="1201" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-24" value="Monitoring laporan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="490" y="1247" as="sourcePoint"/>
+            <mxPoint x="695" y="1247" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-act-24" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="688" y="1237" width="14" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-25" value="Request laporan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="1293" as="sourcePoint"/>
+            <mxPoint x="900" y="1293" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-26" value="Query jurnal dan kehadiran" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="1339" as="sourcePoint"/>
+            <mxPoint x="1105" y="1339" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-27" value="Data laporan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1105" y="1385" as="sourcePoint"/>
+            <mxPoint x="900" y="1385" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-28" value="Kirim laporan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="1431" as="sourcePoint"/>
+            <mxPoint x="695" y="1431" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-29" value="Tampilkan laporan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="1477" as="sourcePoint"/>
+            <mxPoint x="490" y="1477" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-30" value="Export laporan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="490" y="1523" as="sourcePoint"/>
+            <mxPoint x="695" y="1523" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-31" value="Kirim filter export" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="1569" as="sourcePoint"/>
+            <mxPoint x="900" y="1569" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-32" value="Ambil data sesuai filter" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="1615" as="sourcePoint"/>
+            <mxPoint x="1105" y="1615" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-act-32" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1098" y="1605" width="14" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-33" value="Data export" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1105" y="1661" as="sourcePoint"/>
+            <mxPoint x="900" y="1661" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-34" value="Buat file laporan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="1707" as="sourcePoint"/>
+            <mxPoint x="1310" y="1707" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-35" value="File tersedia" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1310" y="1753" as="sourcePoint"/>
+            <mxPoint x="900" y="1753" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-36" value="Kirim file download" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="1799" as="sourcePoint"/>
+            <mxPoint x="695" y="1799" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iterasi-2-msg-37" value="Download laporan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="695" y="1845" as="sourcePoint"/>
+            <mxPoint x="490" y="1845" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -22,6 +22,7 @@ class JournalStudentsLoaded extends JournalState {
   final String className;
   final String subjectName;
   final String timeSlot;
+  final String? journalDate;
 
   JournalStudentsLoaded({
     required this.schedule,
@@ -33,6 +34,7 @@ class JournalStudentsLoaded extends JournalState {
     required this.className,
     required this.subjectName,
     required this.timeSlot,
+    this.journalDate,
   });
 
   /// Count attendance by status
@@ -58,6 +60,7 @@ class JournalStudentsLoaded extends JournalState {
     String? className,
     String? subjectName,
     String? timeSlot,
+    String? journalDate,
   }) {
     return JournalStudentsLoaded(
       schedule: schedule ?? this.schedule,
@@ -69,6 +72,7 @@ class JournalStudentsLoaded extends JournalState {
       className: className ?? this.className,
       subjectName: subjectName ?? this.subjectName,
       timeSlot: timeSlot ?? this.timeSlot,
+      journalDate: journalDate ?? this.journalDate,
     );
   }
 }

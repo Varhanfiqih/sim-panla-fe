@@ -22,68 +22,101 @@ class PushNotificationService {
 
   factory PushNotificationService() => _instance;
 
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final SecureStorageService _storage = SecureStorageService();
   final LocalNotificationService _localNotifications =
       LocalNotificationService();
 
   StreamSubscription<String>? _tokenRefreshSubscription;
+  FirebaseMessaging? _messaging;
   bool _initialized = false;
   bool _firebaseReady = false;
 
   Future<void> initialize() async {
-    if (_initialized) return;
-    _initialized = true;
+    if (_initialized && _firebaseReady) return;
 
     try {
-      await Firebase.initializeApp();
+      await Firebase.initializeApp().timeout(const Duration(seconds: 8));
       _firebaseReady = true;
     } catch (error) {
       debugPrint('Firebase belum dikonfigurasi: $error');
+      _initialized = false;
+      _firebaseReady = false;
       return;
     }
 
+    final messaging = FirebaseMessaging.instance;
+    _messaging = messaging;
+
+    if (_initialized) return;
+    _initialized = true;
+
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-    await _messaging.requestPermission(alert: true, badge: true, sound: true);
-    await _messaging.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    try {
+      await messaging
+          .requestPermission(alert: true, badge: true, sound: true)
+          .timeout(const Duration(seconds: 8));
+      await messaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    } catch (error) {
+      debugPrint('Izin notifikasi Firebase gagal diproses: $error');
+    }
 
     FirebaseMessaging.onMessage.listen(_showForegroundNotification);
 
     _tokenRefreshSubscription?.cancel();
-    _tokenRefreshSubscription = _messaging.onTokenRefresh.listen(
+    _tokenRefreshSubscription = messaging.onTokenRefresh.listen(
       (_) => registerCurrentToken(),
     );
   }
 
   Future<void> registerCurrentToken() async {
-    await initialize();
-    if (!_firebaseReady || !await _storage.isLoggedIn()) return;
+    try {
+      await initialize();
+      if (!_firebaseReady || !await _storage.isLoggedIn()) return;
 
-    final token = await _messaging.getToken();
-    if (token == null || token.isEmpty) return;
+      final messaging = _messaging;
+      if (messaging == null) return;
 
-    await DioClient().dio.post(
-      ApiConstants.deviceTokens,
-      data: {'token': token, 'platform': defaultTargetPlatform.name},
-    );
+      final token = await messaging.getToken().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => null,
+      );
+      if (token == null || token.isEmpty) return;
+
+      await DioClient().dio.post(
+        ApiConstants.deviceTokens,
+        data: {'token': token, 'platform': defaultTargetPlatform.name},
+      );
+    } catch (error) {
+      debugPrint('Token FCM gagal didaftarkan: $error');
+    }
   }
 
   Future<void> unregisterCurrentToken() async {
-    await initialize();
-    if (!_firebaseReady) return;
+    try {
+      await initialize();
+      if (!_firebaseReady) return;
 
-    final token = await _messaging.getToken();
-    if (token == null || token.isEmpty) return;
+      final messaging = _messaging;
+      if (messaging == null) return;
 
-    await DioClient().dio.delete(
-      ApiConstants.deviceTokens,
-      data: {'token': token},
-    );
+      final token = await messaging.getToken().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => null,
+      );
+      if (token == null || token.isEmpty) return;
+
+      await DioClient().dio.delete(
+        ApiConstants.deviceTokens,
+        data: {'token': token},
+      );
+    } catch (error) {
+      debugPrint('Token FCM gagal dihapus: $error');
+    }
   }
 
   Future<void> _showForegroundNotification(RemoteMessage message) async {

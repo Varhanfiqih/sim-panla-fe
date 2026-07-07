@@ -28,6 +28,22 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _uploadingPhoto = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshProfile());
+  }
+
+  Future<void> _refreshProfile() async {
+    try {
+      final user = await _authRepository.getProfile();
+      if (!mounted) return;
+      context.read<AuthBloc>().add(AuthUserUpdated(user));
+    } catch (_) {
+      // Keep showing the cached profile if refresh fails.
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bg,

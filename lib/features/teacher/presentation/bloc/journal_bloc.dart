@@ -28,7 +28,10 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
     emit(JournalLoading());
 
     try {
-      final data = await _repository.getStudents(event.scheduleId);
+      final data = await _repository.getStudents(
+        event.scheduleId,
+        date: event.journalDate,
+      );
 
       // Convert to StudentAttendanceState with initial status
       final studentStates = data.students
@@ -43,6 +46,7 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
           className: event.className,
           subjectName: event.subjectName,
           timeSlot: event.timeSlot,
+          journalDate: event.journalDate,
         ),
       );
     } catch (e) {
@@ -125,6 +129,7 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
         kebersihanKelas: currentState.cleanliness,
         isInval: currentState.schedule.isInvalMock,
         attendances: attendances,
+        journalDate: currentState.journalDate,
       );
 
       final response = await _repository.submitJournal(

@@ -249,6 +249,7 @@ class JournalSubmitRequest {
   final bool isInval;
   final List<StudentAttendanceEntry> attendances;
   final String? attachmentPath;
+  final String? journalDate;
 
   JournalSubmitRequest({
     required this.scheduleId,
@@ -258,6 +259,7 @@ class JournalSubmitRequest {
     required this.isInval,
     required this.attendances,
     this.attachmentPath,
+    this.journalDate,
   });
 
   Map<String, dynamic> toFormData() {
@@ -267,6 +269,7 @@ class JournalSubmitRequest {
       'kebersihan_kelas': kebersihanKelas ?? '',
       'koordinat': koordinat ?? '',
       'is_inval': isInval ? 1 : 0,
+      if (journalDate != null) 'journal_date': journalDate,
       'attendances': attendances.map((e) => e.toJson()).toList(),
     };
   }

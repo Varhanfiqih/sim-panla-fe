@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/app_dimensions.dart';
+import '../../../../../core/services/local_notification_service.dart';
+import '../../../data/models/app_notification.dart';
 import '../../../data/models/inval_class.dart';
 import '../../../data/models/inval_history_item.dart';
 import '../../bloc/inval/inval_bloc.dart';
@@ -45,6 +47,17 @@ class _InvalPageState extends State<InvalPage> {
       body: BlocConsumer<InvalBloc, InvalState>(
         listener: (context, state) {
           if (state is InvalClaimSuccess) {
+            LocalNotificationService().show(
+              AppNotification(
+                id: DateTime.now().millisecondsSinceEpoch.remainder(1000000000),
+                userId: 0,
+                type: 'inval_claim',
+                title: 'Jadwal Inval Berhasil Diambil',
+                body: state.message,
+                data: const {'source': 'local_inval_claim'},
+                isRead: false,
+              ),
+            );
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),

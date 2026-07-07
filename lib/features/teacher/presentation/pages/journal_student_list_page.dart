@@ -636,6 +636,7 @@ class JournalStudentListPageWithFAB extends StatelessWidget {
   final String className;
   final String subjectName;
   final String timeSlot;
+  final String journalDate;
 
   const JournalStudentListPageWithFAB({
     super.key,
@@ -643,6 +644,7 @@ class JournalStudentListPageWithFAB extends StatelessWidget {
     required this.className,
     required this.subjectName,
     required this.timeSlot,
+    required this.journalDate,
   });
 
   @override
@@ -655,6 +657,7 @@ class JournalStudentListPageWithFAB extends StatelessWidget {
             className: className,
             subjectName: subjectName,
             timeSlot: timeSlot,
+            journalDate: journalDate,
           ),
         ),
       child: Scaffold(
@@ -668,7 +671,7 @@ class JournalStudentListPageWithFAB extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 16),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
+                  Navigator.push<bool>(
                     context,
                     MaterialPageRoute(
                       builder: (_) => BlocProvider.value(
@@ -676,7 +679,11 @@ class JournalStudentListPageWithFAB extends StatelessWidget {
                         child: const JournalFormPage(),
                       ),
                     ),
-                  );
+                  ).then((submitted) {
+                    if (submitted == true && context.mounted) {
+                      Navigator.of(context).pop(true);
+                    }
+                  });
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(

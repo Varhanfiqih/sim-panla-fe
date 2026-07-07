@@ -224,12 +224,7 @@ class _JournalFormPageState extends State<JournalFormPage> {
             ),
           );
 
-          Navigator.of(context).popUntil(
-            (route) => route.isFirst || route.settings.name == '/schedule',
-          );
-          if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          }
+          Navigator.of(context).pop(true);
         } else if (state is JournalError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

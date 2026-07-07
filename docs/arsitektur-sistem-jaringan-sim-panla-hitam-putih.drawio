@@ -1,0 +1,136 @@
+﻿<mxfile host="app.diagrams.net" modified="2026-06-20T00:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="arsitektur-sistem-jaringan-sim-panla" name="Arsitektur Sistem Jaringan SIM PANLA">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="ARSITEKTUR SISTEM INFORMASI MANAJEMEN PEMBELAJARAN" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=26;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="70" y="30" width="1260" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Pusat sistem -->
+        <mxCell id="hosting" value="Server Hosting&lt;br&gt;sim-panla.my.id" style="shape=mxgraph.networks.server;html=1;whiteSpace=wrap;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#ffffff;strokeColor=#000000;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="600" y="100" width="90" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="backend" value="Server Aplikasi&lt;br&gt;Laravel Backend API" style="shape=mxgraph.networks.server;html=1;whiteSpace=wrap;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#ffffff;strokeColor=#000000;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="720" y="100" width="90" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="panel" value="Aplikasi Web" style="shape=mxgraph.networks.server;html=1;whiteSpace=wrap;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#ffffff;strokeColor=#000000;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="840" y="100" width="90" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="db" value="Basis Data&lt;br&gt;MySQL / MariaDB" style="shape=cylinder3d;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#ffffff;strokeColor=#000000;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="390" y="105" width="120" height="85" as="geometry"/>
+        </mxCell>
+        <mxCell id="storage" value="Penyimpanan Berkas&lt;br&gt;Bukti Izin, Lampiran Jurnal, Foto Profil" style="shape=folder;tabWidth=70;tabHeight=20;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1000" y="120" width="170" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="github" value="Repository Kode Program" style="shape=cloud;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="160" y="115" width="150" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Internet / jaringan utama -->
+        <mxCell id="internet" value="Internet" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="260" y="300" width="860" height="95" as="geometry"/>
+        </mxCell>
+
+        <!-- Mobile client side -->
+        <mxCell id="mobile_box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="90" y="520" width="360" height="260" as="geometry"/>
+        </mxCell>
+        <mxCell id="mobile_title" value="Aplikasi Mobile" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="90" y="535" width="360" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="mobile_lan" value="Jaringan Seluler / Wi-Fi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="140" y="590" width="260" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="hp1" value="Guru Mapel" style="shape=mxgraph.ios7.icons.smartphone;html=1;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#ffffff;strokeColor=#000000;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="135" y="680" width="45" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="hp2" value="Wali Kelas" style="shape=mxgraph.ios7.icons.smartphone;html=1;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#ffffff;strokeColor=#000000;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="250" y="680" width="45" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="hp3" value="Guru BK" style="shape=mxgraph.ios7.icons.smartphone;html=1;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#ffffff;strokeColor=#000000;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="355" y="680" width="45" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Web side -->
+        <mxCell id="web_box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="530" y="520" width="780" height="260" as="geometry"/>
+        </mxCell>
+        <mxCell id="web_title" value="Panel Website Sekolah" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="530" y="535" width="780" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="school_lan" value="Jaringan Sekolah" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="750" y="590" width="330" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="pc1" value="Super Admin" style="shape=mxgraph.networks.pc;html=1;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#ffffff;strokeColor=#000000;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="620" y="675" width="80" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="pc2" value="Admin IT" style="shape=mxgraph.networks.pc;html=1;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#ffffff;strokeColor=#000000;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="850" y="675" width="80" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="pc3" value="Kepala Sekolah" style="shape=mxgraph.networks.pc;html=1;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#ffffff;strokeColor=#000000;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1080" y="675" width="80" height="65" as="geometry"/>
+        </mxCell>
+
+        <!-- Feature notes -->
+        <mxCell id="api_notes" value="Layanan Sistem:&lt;br&gt;- Autentikasi pengguna&lt;br&gt;- Jadwal dan check-in&lt;br&gt;- Jurnal mengajar&lt;br&gt;- Izin siswa dan persetujuan BK&lt;br&gt;- Inval dan penilaian&lt;br&gt;- Laporan dan ekspor data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=12;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="600" y="210" width="330" height="125" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e_github_hosting" value="Deploy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=11;" edge="1" parent="1" source="github" target="hosting">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_hosting_backend" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="hosting" target="backend">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_backend_panel" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="backend" target="panel">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_backend_db" value="Data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=11;" edge="1" parent="1" source="backend" target="db">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_panel_db" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="panel" target="db">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="885" y="85"/><mxPoint x="450" y="85"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e_backend_storage" value="Berkas" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=11;" edge="1" parent="1" source="backend" target="storage">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_backend_internet" value="API" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=11;" edge="1" parent="1" source="backend" target="internet">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_panel_internet" value="Web" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=11;" edge="1" parent="1" source="panel" target="internet">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_mobile_internet" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="mobile_lan" target="internet">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_web_internet" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="school_lan" target="internet">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_hp1_lan" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="hp1" target="mobile_lan">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_hp2_lan" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="hp2" target="mobile_lan">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_hp3_lan" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="hp3" target="mobile_lan">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_pc1_lan" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="pc1" target="school_lan">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_pc2_lan" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="pc2" target="school_lan">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_pc3_lan" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="pc3" target="school_lan">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
+

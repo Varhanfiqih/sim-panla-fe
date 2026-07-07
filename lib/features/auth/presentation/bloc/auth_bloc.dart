@@ -55,7 +55,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(const AuthUnauthenticated());
       }
     } catch (e) {
-      await _authRepository.logout();
+      if (e is ApiException && e.type == ApiExceptionType.unauthorized) {
+        await _authRepository.logout();
+        emit(const AuthUnauthenticated());
+        return;
+      }
+
+      final cachedUser = await _authRepository.getCurrentUser();
+      if (cachedUser != null && cachedUser.canAccessMobile) {
+        emit(AuthAuthenticated(user: cachedUser));
+        return;
+      }
+
       emit(const AuthUnauthenticated());
     }
   }

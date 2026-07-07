@@ -43,8 +43,16 @@ void main() async {
   // Initialize DioClient (singleton)
   await SecureStorageService().init();
   DioClient().init();
-  await LocalNotificationService().initialize();
-  await PushNotificationService().initialize();
+  unawaited(
+    LocalNotificationService().initialize().catchError((error, stackTrace) {
+      debugPrint('Local notification gagal diinisialisasi: $error');
+    }),
+  );
+  unawaited(
+    PushNotificationService().initialize().catchError((error, stackTrace) {
+      debugPrint('Push notification gagal diinisialisasi: $error');
+    }),
+  );
 
   // Initialize repositories
   final authRepository = AuthRepository();
@@ -362,8 +370,7 @@ class _AutoLogoutOnBackgroundState extends State<AutoLogoutOnBackground>
       return;
     }
 
-    if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused ||
+    if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden ||
         state == AppLifecycleState.detached) {
       _startLogoutCountdown();
