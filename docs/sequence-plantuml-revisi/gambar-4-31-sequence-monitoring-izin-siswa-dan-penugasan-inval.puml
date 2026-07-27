@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Monitoring Izin Siswa dan Penugasan Inval
+
+actor "Admin/Kepala Sekolah" as Actor
+boundary "Halaman Monitoring" as UI
+control "MonitoringController" as Controller
+entity "Permission" as Permission
+entity "InvalAssignment" as Inval
+
+Actor -> UI: Membuka halaman monitoring
+UI -> Controller: Meminta data izin dan penugasan inval
+Controller -> Permission: Mengambil pengajuan izin siswa
+Controller -> Inval: Mengambil data penugasan inval
+Permission --> Controller: Data izin siswa
+Inval --> Controller: Data inval
+Controller -> Controller: Menyusun data monitoring
+Controller --> UI: Mengirim data monitoring
+UI --> Actor: Menampilkan monitoring izin dan inval
+@enduml

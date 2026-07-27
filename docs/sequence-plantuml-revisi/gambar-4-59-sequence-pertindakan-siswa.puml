@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Pertindakan Siswa
+
+actor "Guru BK" as Actor
+boundary "Halaman Pertindakan" as UI
+control "BkController" as Controller
+entity "Student" as Student
+entity "BkAction" as Action
+
+Actor -> UI: Membuka halaman pertindakan siswa
+UI -> Controller: Meminta daftar siswa dan riwayat tindakan
+Controller -> Student: Mengambil data siswa
+Controller -> Action: Mengambil riwayat tindakan
+Student --> Controller: Data siswa
+Action --> Controller: Riwayat tindakan
+Controller --> UI: Menampilkan data pertindakan
+Actor -> UI: Mengisi tindakan siswa
+UI -> Controller: Mengirim data tindakan
+Controller -> Controller: Validasi role Guru BK, siswa, jenis tindakan, dan catatan
+alt Data valid
+Controller -> Action: Menyimpan tindakan siswa
+Action --> Controller: Tindakan tersimpan
+Controller --> UI: Mengirim status berhasil
+UI --> Actor: Menampilkan riwayat terbaru
+else Data tidak valid atau role tidak sesuai
+Controller --> UI: Mengirim pesan kesalahan
+UI --> Actor: Menampilkan validasi
+end
+@enduml

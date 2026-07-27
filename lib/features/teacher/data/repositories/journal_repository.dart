@@ -125,4 +125,48 @@ class JournalRepository {
       throw Exception('Terjadi kesalahan jaringan');
     }
   }
+
+  /// Update journal material and classroom cleanliness.
+  /// PUT /journal/history/{journal_id}
+  Future<void> updateJournalHistory({
+    required int journalId,
+    required String materi,
+    String? kebersihanKelas,
+    List<StudentAttendanceEntry>? attendances,
+  }) async {
+    try {
+      final payload = <String, dynamic>{
+        'materi': materi,
+        'kebersihan_kelas': kebersihanKelas ?? '',
+      };
+
+      if (attendances != null) {
+        payload['attendances'] = attendances.map((e) => e.toJson()).toList();
+      }
+
+      final response = await _client.put(
+        '/journal/history/$journalId',
+        data: payload,
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data is Map && data['status'] == 'success') return;
+        throw Exception(data['message'] ?? 'Gagal memperbarui jurnal');
+      }
+
+      throw Exception('Gagal memperbarui jurnal: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.error is ApiException) {
+        throw Exception((e.error as ApiException).message);
+      }
+      if (e.response?.data != null) {
+        final errorData = e.response!.data;
+        if (errorData is Map && errorData.containsKey('message')) {
+          throw Exception(errorData['message']);
+        }
+      }
+      throw Exception('Terjadi kesalahan jaringan');
+    }
+  }
 }

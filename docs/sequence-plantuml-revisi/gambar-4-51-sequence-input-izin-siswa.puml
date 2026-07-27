@@ -1,0 +1,45 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Input Izin Siswa
+
+actor "Wali Kelas" as Actor
+boundary "Halaman Izin Siswa" as UI
+control "PermissionController" as Controller
+entity "Student" as Student
+entity "Permission" as Permission
+collections "File Storage" as Storage
+
+Actor -> UI: Membuka form izin siswa
+UI -> Controller: Meminta daftar siswa kelas wali
+Controller -> Student: Mengambil siswa berdasarkan kelas wali
+Student --> Controller: Data siswa
+Controller --> UI: Menampilkan daftar siswa
+Actor -> UI: Mengisi data izin siswa
+opt Ada foto/lampiran
+UI -> Storage: Mengunggah lampiran izin
+Storage --> UI: Path lampiran
+end
+UI -> Controller: Mengirim pengajuan izin
+Controller -> Controller: Validasi siswa, tanggal, alasan, dan kelas wali
+alt Data valid
+Controller -> Permission: Menyimpan izin dengan status pending
+Permission --> Controller: Izin tersimpan
+Controller --> UI: Mengirim status berhasil
+UI --> Actor: Menampilkan pengajuan berhasil
+else Siswa bukan kelas wali atau data tidak valid
+Controller --> UI: Mengirim pesan kesalahan
+UI --> Actor: Menampilkan validasi
+end
+@enduml

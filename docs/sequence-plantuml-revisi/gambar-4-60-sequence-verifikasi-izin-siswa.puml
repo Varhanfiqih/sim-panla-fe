@@ -1,0 +1,44 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Verifikasi Izin Siswa
+
+actor "Guru BK" as Actor
+boundary "Halaman Verifikasi Izin" as UI
+control "PermissionController" as Controller
+entity "Permission" as Permission
+entity "StudentNote/Attendance" as Sync
+control "MobileNotificationService" as Notification
+
+Actor -> UI: Membuka daftar izin pending
+UI -> Controller: Meminta data pengajuan izin
+Controller -> Permission: Mengambil izin pending
+Permission --> Controller: Data pengajuan izin
+Controller --> UI: Menampilkan daftar izin
+Actor -> UI: Memilih setujui atau tolak
+UI -> Controller: Mengirim keputusan verifikasi
+Controller -> Controller: Validasi role Guru BK dan status pengajuan
+alt Izin disetujui
+Controller -> Permission: Mengubah status menjadi approved
+Controller -> Sync: Sinkronisasi catatan/presensi siswa
+Controller -> Notification: Mengirim notifikasi hasil verifikasi
+Controller --> UI: Mengirim status berhasil
+UI --> Actor: Menampilkan izin disetujui
+else Izin ditolak
+Controller -> Permission: Mengubah status menjadi rejected
+Controller -> Notification: Mengirim notifikasi hasil verifikasi
+Controller --> UI: Mengirim status berhasil
+UI --> Actor: Menampilkan izin ditolak
+end
+@enduml

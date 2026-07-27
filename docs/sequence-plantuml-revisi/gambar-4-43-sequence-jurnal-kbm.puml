@@ -1,0 +1,45 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Jurnal KBM
+
+actor "Guru" as Actor
+boundary "Halaman Jurnal KBM" as UI
+control "JournalController" as Controller
+entity "Schedule" as Schedule
+entity "Journal" as Journal
+collections "File Storage" as Storage
+
+Actor -> UI: Membuka form jurnal KBM
+UI -> Controller: Meminta jadwal dan siswa
+Controller -> Schedule: Mengambil jadwal mengajar
+Schedule --> Controller: Data jadwal
+Controller --> UI: Menampilkan form jurnal
+Actor -> UI: Mengisi jurnal dan catatan siswa
+opt Ada lampiran
+UI -> Storage: Mengunggah lampiran
+Storage --> UI: Path lampiran
+end
+UI -> Controller: Mengirim data jurnal
+Controller -> Controller: Validasi jadwal, kehadiran guru, dan duplikasi jurnal
+alt Data valid
+Controller -> Journal: Menyimpan jurnal dan catatan siswa
+Journal --> Controller: Jurnal tersimpan
+Controller --> UI: Mengirim status berhasil
+UI --> Actor: Menampilkan jurnal tersimpan
+else Data tidak valid
+Controller --> UI: Mengirim pesan kesalahan
+UI --> Actor: Menampilkan validasi
+end
+@enduml

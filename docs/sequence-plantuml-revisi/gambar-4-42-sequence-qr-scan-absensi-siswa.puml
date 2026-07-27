@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram QR Scan Absensi Siswa
+
+actor "Guru" as Actor
+boundary "Halaman QR Scanner" as UI
+control "AttendanceController" as Controller
+entity "Student" as Student
+entity "Attendance" as Attendance
+
+Actor -> UI: Membuka QR scanner
+Actor -> UI: Memindai QR siswa
+UI -> Controller: Mengirim kode QR
+Controller -> Student: Validasi siswa berdasarkan QR
+Student --> Controller: Data siswa
+Controller -> Attendance: Cek absensi duplikat
+Attendance --> Controller: Status absensi
+alt Belum pernah dipindai
+Controller -> Attendance: Menyimpan absensi siswa
+Controller --> UI: Mengirim status berhasil
+UI --> Actor: Menampilkan absensi tersimpan
+else Sudah pernah dipindai
+Controller --> UI: Mengirim pesan duplikat
+UI --> Actor: Menampilkan peringatan duplikat
+end
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Kelola Nilai dan Pengaturan Presensi
+
+actor "Admin" as Actor
+boundary "Halaman Nilai dan Presensi" as UI
+control "SettingController" as Controller
+entity "GradePeriod/GradeCategory" as Grade
+entity "AppSetting" as Setting
+
+Actor -> UI: Membuka halaman nilai dan presensi
+UI -> Controller: Meminta konfigurasi nilai dan presensi
+Controller -> Grade: Mengambil periode dan kategori nilai
+Controller -> Setting: Mengambil pengaturan presensi
+Grade --> Controller: Data nilai
+Setting --> Controller: Data pengaturan
+Controller --> UI: Menampilkan konfigurasi
+Actor -> UI: Mengubah konfigurasi
+UI -> Controller: Mengirim perubahan
+Controller -> Controller: Validasi konfigurasi
+Controller -> Grade: Menyimpan periode/kategori nilai
+Controller -> Setting: Menyimpan pengaturan presensi
+Controller --> UI: Mengirim status berhasil
+UI --> Actor: Menampilkan konfigurasi terbaru
+@enduml

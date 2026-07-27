@@ -71,7 +71,7 @@ flutter:
 
   assets:
     - assets/images/app_icon.png
-    - assets/images/tut_wuri_handayani.png
+    - assets/images/logo_smpn8_pasuruan.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -15,6 +15,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final RealtimeNotificationService _realtime;
   final LocalNotificationService _localNotifications;
   final Set<int> _knownNotificationIds = <int>{};
+  int? _activeUserId;
   Timer? _pollTimer;
 
   NotificationBloc({
@@ -38,6 +39,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     await _localNotifications.initialize();
+    _activeUserId = event.userId;
 
     var realtimeConnected = false;
     try {
@@ -52,7 +54,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       realtimeConnected = false;
     }
 
-    final notifications = await _repository.getNotifications(limit: 50);
+    final notifications = (await _repository.getNotifications(limit: 50))
+        .where(_belongsToActiveUser)
+        .toList();
     _knownNotificationIds
       ..clear()
       ..addAll(notifications.map((item) => item.id));
@@ -80,7 +84,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     try {
-      final notifications = await _repository.getNotifications(limit: 50);
+      final notifications = (await _repository.getNotifications(limit: 50))
+          .where(_belongsToActiveUser)
+          .toList();
       final newNotifications = notifications
           .where((item) => !_knownNotificationIds.contains(item.id))
           .toList()
@@ -105,6 +111,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     NotificationRealtimeReceived event,
     Emitter<NotificationState> emit,
   ) async {
+    if (!_belongsToActiveUser(event.notification)) return;
     if (!_knownNotificationIds.add(event.notification.id)) return;
 
     await _localNotifications.show(event.notification);
@@ -125,8 +132,15 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   ) async {
     _pollTimer?.cancel();
     _pollTimer = null;
+    _activeUserId = null;
+    _knownNotificationIds.clear();
     await _realtime.disconnect();
     emit(state.copyWith(connected: false));
+  }
+
+  bool _belongsToActiveUser(AppNotification notification) {
+    final activeUserId = _activeUserId;
+    return activeUserId != null && notification.userId == activeUserId;
   }
 
   @override

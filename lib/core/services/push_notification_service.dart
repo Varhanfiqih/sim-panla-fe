@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -120,6 +121,16 @@ class PushNotificationService {
   }
 
   Future<void> _showForegroundNotification(RemoteMessage message) async {
+    final currentUserId = await _currentUserId();
+    final notificationUserId = int.tryParse(
+      message.data['user_id']?.toString() ?? '',
+    );
+    if (currentUserId == null ||
+        notificationUserId == null ||
+        notificationUserId != currentUserId) {
+      return;
+    }
+
     final notification = message.notification;
     final title = notification?.title ?? message.data['title'] ?? 'SIM PANLA';
     final body = notification?.body ?? message.data['body'] ?? '';
@@ -130,7 +141,7 @@ class PushNotificationService {
         id:
             int.tryParse(message.data['notification_id']?.toString() ?? '') ??
             DateTime.now().millisecondsSinceEpoch.remainder(1000000000),
-        userId: 0,
+        userId: currentUserId,
         type: message.data['type']?.toString() ?? 'push',
         title: title,
         body: body,
@@ -138,6 +149,20 @@ class PushNotificationService {
         isRead: false,
       ),
     );
+  }
+
+  Future<int?> _currentUserId() async {
+    final raw = await _storage.getUserData();
+    if (raw == null || raw.isEmpty) return null;
+
+    try {
+      final json = jsonDecode(raw);
+      if (json is! Map<String, dynamic>) return null;
+
+      return int.tryParse(json['id']?.toString() ?? '');
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> dispose() async {

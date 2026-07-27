@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Klaim Inval Kelas Guru Mapel
+
+actor "Guru Mapel" as Actor
+boundary "Halaman Inval" as UI
+control "JournalController" as Controller
+entity "Schedule" as Schedule
+entity "InvalAssignment" as Inval
+
+Actor -> UI: Membuka daftar kelas inval
+UI -> Controller: Meminta kelas inval tersedia
+Controller -> Schedule: Mengambil jadwal guru tidak hadir
+Controller -> Inval: Memeriksa klaim yang tersedia
+Schedule --> Controller: Data jadwal inval
+Inval --> Controller: Status klaim
+Controller --> UI: Menampilkan kelas inval tersedia
+Actor -> UI: Memilih kelas inval
+UI -> Controller: Mengirim klaim inval
+Controller -> Controller: Validasi konflik jadwal dan status klaim
+alt Klaim valid
+Controller -> Inval: Menyimpan guru pengganti
+Inval --> Controller: Klaim tersimpan
+Controller --> UI: Mengirim status berhasil
+UI --> Actor: Menampilkan klaim berhasil
+else Kelas sudah diklaim
+Controller --> UI: Mengirim pesan gagal
+UI --> Actor: Menampilkan informasi gagal klaim
+end
+@enduml

@@ -222,7 +222,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildLogoSection() {
     return Column(
       children: [
-        // Tut Wuri Handayani logo
+        // SMP Negeri 8 Pasuruan logo
         Container(
           width: 88,
           height: 88,
@@ -236,7 +236,7 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
           child: Image.asset(
-            'assets/images/tut_wuri_handayani.png',
+            'assets/images/logo_smpn8_pasuruan.png',
             fit: BoxFit.contain,
             filterQuality: FilterQuality.high,
           ),

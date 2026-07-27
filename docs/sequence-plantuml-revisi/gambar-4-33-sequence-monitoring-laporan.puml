@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Monitoring Laporan
+
+actor "Kepala Sekolah/Admin" as Actor
+boundary "Halaman Laporan" as UI
+control "ReportController" as Controller
+entity "Journal" as Journal
+entity "Attendance" as Attendance
+
+Actor -> UI: Membuka halaman laporan
+UI -> Controller: Mengirim filter laporan
+Controller -> Journal: Mengambil data jurnal mengajar
+Controller -> Attendance: Mengambil data kehadiran
+Journal --> Controller: Data jurnal
+Attendance --> Controller: Data kehadiran
+Controller -> Controller: Mengolah ringkasan laporan
+Controller --> UI: Mengirim data laporan
+UI --> Actor: Menampilkan monitoring laporan
+@enduml

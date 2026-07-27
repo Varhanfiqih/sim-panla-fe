@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Input Nilai Siswa
+
+actor "Wali Kelas" as Actor
+boundary "Halaman Input Nilai" as UI
+control "GradeController" as Controller
+entity "Student" as Student
+entity "StudentGrade" as Grade
+
+Actor -> UI: Membuka halaman input nilai
+UI -> Controller: Meminta meta periode, mapel, kategori, dan siswa
+Controller -> Student: Mengambil siswa kelas wali
+Controller -> Grade: Mengambil data nilai yang tersedia
+Student --> Controller: Data siswa
+Grade --> Controller: Data nilai
+Controller --> UI: Menampilkan form nilai
+Actor -> UI: Mengisi nilai siswa
+UI -> Controller: Mengirim data nilai
+Controller -> Controller: Validasi periode, mapel, kategori, siswa, dan skor
+alt Data valid
+Controller -> Grade: Menyimpan atau memperbarui nilai siswa
+Grade --> Controller: Nilai tersimpan
+Controller --> UI: Mengirim status berhasil
+UI --> Actor: Menampilkan pesan berhasil
+else Data tidak valid
+Controller --> UI: Mengirim pesan validasi
+UI --> Actor: Menampilkan pesan kesalahan
+end
+@enduml

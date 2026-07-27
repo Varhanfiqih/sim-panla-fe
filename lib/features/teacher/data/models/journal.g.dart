@@ -85,6 +85,9 @@ StudentAttendanceEntry _$StudentAttendanceEntryFromJson(
         Map<String, dynamic> json) =>
     StudentAttendanceEntry(
       studentId: (json['student_id'] as num).toInt(),
+      nis: json['nis'] as String?,
+      nisn: json['nisn'] as String?,
+      studentName: json['student_name'] as String?,
       status: json['status'] as String,
       notes:
           (json['notes'] as List<dynamic>?)?.map((e) => e as String).toList(),
@@ -94,6 +97,9 @@ Map<String, dynamic> _$StudentAttendanceEntryToJson(
         StudentAttendanceEntry instance) =>
     <String, dynamic>{
       'student_id': instance.studentId,
+      'nis': instance.nis,
+      'nisn': instance.nisn,
+      'student_name': instance.studentName,
       'status': instance.status,
       'notes': instance.notes,
     };

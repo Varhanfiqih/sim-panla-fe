@@ -1,0 +1,33 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Export Laporan
+
+actor "Admin/Kepala Sekolah" as Actor
+boundary "Halaman Export" as UI
+control "ReportExportController" as Controller
+control "ExcelReportService" as Excel
+collections "File Laporan" as File
+
+Actor -> UI: Memilih filter export
+Actor -> UI: Menekan tombol export
+UI -> Controller: Mengirim permintaan export
+Controller -> Controller: Validasi filter dan hak akses
+Controller -> Excel: Membentuk file laporan
+Excel -> File: Membuat file Excel
+File --> Excel: File siap diunduh
+Excel --> Controller: Path file laporan
+Controller --> UI: Mengirim file download
+UI --> Actor: Mengunduh laporan
+@enduml

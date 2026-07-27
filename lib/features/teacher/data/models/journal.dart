@@ -224,12 +224,21 @@ class StudentAttendanceEntry {
   @JsonKey(name: 'student_id')
   final int studentId;
 
+  final String? nis;
+  final String? nisn;
+
+  @JsonKey(name: 'student_name')
+  final String? studentName;
+
   final String status;
 
   final List<String>? notes;
 
   StudentAttendanceEntry({
     required this.studentId,
+    this.nis,
+    this.nisn,
+    this.studentName,
     required this.status,
     this.notes,
   });
@@ -334,6 +343,9 @@ class StudentAttendanceState {
   StudentAttendanceEntry toEntry() {
     return StudentAttendanceEntry(
       studentId: student.id,
+      nis: student.nis,
+      nisn: student.nisn,
+      studentName: student.name,
       status: currentStatus.jsonValue,
       notes: notes.isNotEmpty ? notes : null,
     );

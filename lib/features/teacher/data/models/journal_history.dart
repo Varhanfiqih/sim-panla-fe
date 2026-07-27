@@ -29,6 +29,9 @@ class JournalHistoryData {
   @JsonKey(name: 'journal_id')
   final int journalId;
 
+  @JsonKey(name: 'schedule_id')
+  final int? scheduleId;
+
   @JsonKey(name: 'created_at')
   final String createdAt;
 
@@ -61,6 +64,7 @@ class JournalHistoryData {
     required this.className,
     required this.timeSlot,
     required this.material,
+    this.scheduleId,
     this.cleanliness,
     required this.isInval,
     this.attachmentUrl,
@@ -71,6 +75,7 @@ class JournalHistoryData {
   factory JournalHistoryData.fromJson(Map<String, dynamic> json) {
     return JournalHistoryData(
       journalId: _toInt(json['journal_id']),
+      scheduleId: json['schedule_id'] != null ? _toInt(json['schedule_id']) : null,
       createdAt: json['created_at']?.toString() ?? '',
       subject: json['subject']?.toString() ?? '',
       className: json['class_name']?.toString() ?? '',
@@ -117,16 +122,22 @@ class JournalHistoryTimeSlot {
 
 @JsonSerializable()
 class JournalHistoryAbsensi {
+  @JsonKey(name: 'student_id')
+  final int studentId;
+
   @JsonKey(name: 'student_name')
   final String studentName;
 
+  final String? nisn;
   final String? nis;
 
   final String status;
   final String? notes;
 
   JournalHistoryAbsensi({
+    required this.studentId,
     required this.studentName,
+    this.nisn,
     this.nis,
     required this.status,
     this.notes,

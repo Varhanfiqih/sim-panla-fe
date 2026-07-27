@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Login Web Panel
+
+actor "Pengguna" as Actor
+boundary "Halaman Login Web" as UI
+control "AuthController" as Auth
+entity "User" as User
+boundary "Dashboard Web" as Dashboard
+
+Actor -> UI: Membuka halaman login
+UI --> Actor: Menampilkan form login
+Actor -> UI: Mengisi NIP dan password
+Actor -> UI: Menekan tombol masuk
+UI -> Auth: Mengirim data login
+Auth -> User: Memvalidasi akun dan role
+User --> Auth: Mengirim hasil validasi
+alt Login berhasil
+Auth --> UI: Mengirim token/session dan role
+UI -> Dashboard: Mengarahkan ke dashboard sesuai role
+Dashboard --> Actor: Menampilkan dashboard
+else Login gagal
+Auth --> UI: Mengirim pesan gagal login
+UI --> Actor: Menampilkan pesan kesalahan
+end
+@enduml

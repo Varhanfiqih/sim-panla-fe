@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Kelola Data Siswa dan Kelas
+
+actor "Admin" as Actor
+boundary "Halaman Siswa dan Kelas" as UI
+control "StudentResource" as Controller
+entity "Student" as Student
+entity "SchoolClass" as SchoolClass
+
+Actor -> UI: Membuka halaman siswa dan kelas
+UI -> Controller: Meminta data siswa dan kelas
+Controller -> Student: Mengambil daftar siswa
+Controller -> SchoolClass: Mengambil daftar kelas
+Student --> Controller: Data siswa
+SchoolClass --> Controller: Data kelas
+Controller --> UI: Mengirim data siswa dan kelas
+Actor -> UI: Menambah atau mengubah data siswa
+UI -> Controller: Mengirim form siswa
+Controller -> Controller: Validasi NISN, nama, kelas, dan gender
+alt Data valid
+Controller -> Student: Menyimpan data siswa
+Student --> Controller: Data tersimpan
+Controller --> UI: Mengirim status berhasil
+UI --> Actor: Menampilkan data terbaru
+else Data tidak valid
+Controller --> UI: Mengirim pesan kesalahan
+UI --> Actor: Menampilkan validasi
+end
+@enduml

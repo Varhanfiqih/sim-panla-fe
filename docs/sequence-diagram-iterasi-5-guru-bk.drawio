@@ -2,297 +2,210 @@
   <diagram id="iterasi-5" name="Iterasi 5">
     <mxGraphModel dx="2200" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1540" pageHeight="1760" math="0" shadow="0">
       <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
         <mxCell id="iterasi-5-title" value="Iterasi 5 - Login Guru BK, Pertindakan Siswa, Verifikasi Izin Siswa" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=18;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="40" y="10" width="1460" height="30" as="geometry"/>
+          <mxGeometry x="40" y="10" width="1460" height="30" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-p-0" value="Guru BK" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="15" y="45" width="130" height="54" as="geometry"/>
+          <mxGeometry x="15" y="45" width="130" height="54" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-life-0" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="80" y="115" as="sourcePoint"/>
-            <mxPoint x="80" y="1715" as="targetPoint"/>
+            <mxPoint x="80" y="115" as="sourcePoint" />
+            <mxPoint x="80" y="1715" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-p-1" value="Mobile Apps" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="220" y="45" width="130" height="54" as="geometry"/>
+          <mxGeometry x="220" y="45" width="130" height="54" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-life-1" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="285" y="115" as="sourcePoint"/>
-            <mxPoint x="285" y="1715" as="targetPoint"/>
+            <mxPoint x="285" y="115" as="sourcePoint" />
+            <mxPoint x="285" y="1715" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-p-2" value="Laravel API" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="425" y="45" width="130" height="54" as="geometry"/>
+          <mxGeometry x="425" y="45" width="130" height="54" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-life-2" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="115" as="sourcePoint"/>
-            <mxPoint x="490" y="1715" as="targetPoint"/>
+            <mxPoint x="490" y="115" as="sourcePoint" />
+            <mxPoint x="490" y="1715" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-p-3" value="Auth Service" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="630" y="45" width="130" height="54" as="geometry"/>
+          <mxGeometry x="630" y="45" width="130" height="54" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-life-3" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="695" y="115" as="sourcePoint"/>
-            <mxPoint x="695" y="1715" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-p-4" value="Database" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="835" y="45" width="130" height="54" as="geometry"/>
-        </mxCell>
-        <mxCell id="iterasi-5-life-4" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="900" y="115" as="sourcePoint"/>
-            <mxPoint x="900" y="1715" as="targetPoint"/>
+            <mxPoint x="695" y="115" as="sourcePoint" />
+            <mxPoint x="695" y="1715" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-p-5" value="File Storage" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="1040" y="45" width="130" height="54" as="geometry"/>
+          <mxGeometry x="1040" y="45" width="130" height="54" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-life-5" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1105" y="115" as="sourcePoint"/>
-            <mxPoint x="1105" y="1715" as="targetPoint"/>
+            <mxPoint x="1105" y="115" as="sourcePoint" />
+            <mxPoint x="1105" y="1715" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-p-6" value="Notification Service" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="1245" y="45" width="130" height="54" as="geometry"/>
+          <mxGeometry x="1245" y="45" width="130" height="54" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-life-6" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1310" y="115" as="sourcePoint"/>
-            <mxPoint x="1310" y="1715" as="targetPoint"/>
+            <mxPoint x="1310" y="115" as="sourcePoint" />
+            <mxPoint x="1310" y="1715" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-0" value="Login sebagai Guru BK" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="80" y="143" as="sourcePoint"/>
-            <mxPoint x="285" y="143" as="targetPoint"/>
+            <mxPoint x="80" y="143" as="sourcePoint" />
+            <mxPoint x="285" y="143" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-act-0" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="278" y="133" width="14" height="22" as="geometry"/>
+          <mxGeometry x="278" y="133" width="14" height="22" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-msg-1" value="POST /login" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="285" y="189" as="sourcePoint"/>
-            <mxPoint x="490" y="189" as="targetPoint"/>
+            <mxPoint x="285" y="189" as="sourcePoint" />
+            <mxPoint x="490" y="189" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-2" value="Validasi kredensial" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="235" as="sourcePoint"/>
-            <mxPoint x="695" y="235" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-3" value="Cek user dan role BK" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="695" y="281" as="sourcePoint"/>
-            <mxPoint x="900" y="281" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-4" value="User valid" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="900" y="327" as="sourcePoint"/>
-            <mxPoint x="695" y="327" as="targetPoint"/>
+            <mxPoint x="490" y="235" as="sourcePoint" />
+            <mxPoint x="695" y="235" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-5" value="Token login" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="695" y="373" as="sourcePoint"/>
-            <mxPoint x="490" y="373" as="targetPoint"/>
+            <mxPoint x="695" y="373" as="sourcePoint" />
+            <mxPoint x="490" y="373" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-6" value="Data user dan token" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="419" as="sourcePoint"/>
-            <mxPoint x="285" y="419" as="targetPoint"/>
+            <mxPoint x="490" y="419" as="sourcePoint" />
+            <mxPoint x="285" y="419" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-7" value="Dashboard Guru BK" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="285" y="465" as="sourcePoint"/>
-            <mxPoint x="80" y="465" as="targetPoint"/>
+            <mxPoint x="285" y="465" as="sourcePoint" />
+            <mxPoint x="80" y="465" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-8" value="Buka pertindakan siswa" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="80" y="511" as="sourcePoint"/>
-            <mxPoint x="285" y="511" as="targetPoint"/>
+            <mxPoint x="80" y="511" as="sourcePoint" />
+            <mxPoint x="285" y="511" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-act-8" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="278" y="501" width="14" height="22" as="geometry"/>
+          <mxGeometry x="278" y="501" width="14" height="22" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-msg-9" value="Request data siswa bermasalah/alpa" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="285" y="557" as="sourcePoint"/>
-            <mxPoint x="490" y="557" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-10" value="Query student_notes, attendances, students" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="603" as="sourcePoint"/>
-            <mxPoint x="900" y="603" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-11" value="Data siswa" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="900" y="649" as="sourcePoint"/>
-            <mxPoint x="490" y="649" as="targetPoint"/>
+            <mxPoint x="285" y="557" as="sourcePoint" />
+            <mxPoint x="490" y="557" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-12" value="Kirim daftar siswa" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="695" as="sourcePoint"/>
-            <mxPoint x="285" y="695" as="targetPoint"/>
+            <mxPoint x="490" y="695" as="sourcePoint" />
+            <mxPoint x="285" y="695" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-13" value="Isi tindakan BK dan catatan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="80" y="741" as="sourcePoint"/>
-            <mxPoint x="285" y="741" as="targetPoint"/>
+            <mxPoint x="80" y="741" as="sourcePoint" />
+            <mxPoint x="285" y="741" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-14" value="Submit tindakan BK" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="285" y="787" as="sourcePoint"/>
-            <mxPoint x="490" y="787" as="targetPoint"/>
+            <mxPoint x="285" y="787" as="sourcePoint" />
+            <mxPoint x="490" y="787" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-15" value="Upload bukti jika ada" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="833" as="sourcePoint"/>
-            <mxPoint x="1105" y="833" as="targetPoint"/>
+            <mxPoint x="490" y="833" as="sourcePoint" />
+            <mxPoint x="1105" y="833" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-16" value="Path bukti" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1105" y="879" as="sourcePoint"/>
-            <mxPoint x="490" y="879" as="targetPoint"/>
+            <mxPoint x="1105" y="879" as="sourcePoint" />
+            <mxPoint x="490" y="879" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-act-16" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="483" y="869" width="14" height="22" as="geometry"/>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-17" value="Simpan bk_actions" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="925" as="sourcePoint"/>
-            <mxPoint x="900" y="925" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-18" value="Tindakan tersimpan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="900" y="971" as="sourcePoint"/>
-            <mxPoint x="490" y="971" as="targetPoint"/>
-          </mxGeometry>
+          <mxGeometry x="483" y="869" width="14" height="22" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-msg-19" value="Status berhasil" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="1017" as="sourcePoint"/>
-            <mxPoint x="285" y="1017" as="targetPoint"/>
+            <mxPoint x="490" y="1017" as="sourcePoint" />
+            <mxPoint x="285" y="1017" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-20" value="Verifikasi izin siswa" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="80" y="1063" as="sourcePoint"/>
-            <mxPoint x="285" y="1063" as="targetPoint"/>
+            <mxPoint x="80" y="1063" as="sourcePoint" />
+            <mxPoint x="285" y="1063" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-21" value="Request permission pending" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="285" y="1109" as="sourcePoint"/>
-            <mxPoint x="490" y="1109" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-22" value="Query permissions pending" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="1155" as="sourcePoint"/>
-            <mxPoint x="900" y="1155" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-23" value="Data pengajuan izin" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="900" y="1201" as="sourcePoint"/>
-            <mxPoint x="490" y="1201" as="targetPoint"/>
+            <mxPoint x="285" y="1109" as="sourcePoint" />
+            <mxPoint x="490" y="1109" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-24" value="Kirim daftar izin" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="1247" as="sourcePoint"/>
-            <mxPoint x="285" y="1247" as="targetPoint"/>
+            <mxPoint x="490" y="1247" as="sourcePoint" />
+            <mxPoint x="285" y="1247" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-act-24" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="278" y="1237" width="14" height="22" as="geometry"/>
+          <mxGeometry x="278" y="1237" width="14" height="22" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-msg-25" value="Pilih approve atau reject" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="80" y="1293" as="sourcePoint"/>
-            <mxPoint x="285" y="1293" as="targetPoint"/>
+            <mxPoint x="80" y="1293" as="sourcePoint" />
+            <mxPoint x="285" y="1293" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-26" value="Submit verifikasi" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="285" y="1339" as="sourcePoint"/>
-            <mxPoint x="490" y="1339" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-27" value="Update status permission" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="1385" as="sourcePoint"/>
-            <mxPoint x="900" y="1385" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-28" value="Sinkronkan student_notes/attendances jika approved" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="1431" as="sourcePoint"/>
-            <mxPoint x="900" y="1431" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-29" value="Verifikasi tersimpan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="900" y="1477" as="sourcePoint"/>
-            <mxPoint x="490" y="1477" as="targetPoint"/>
+            <mxPoint x="285" y="1339" as="sourcePoint" />
+            <mxPoint x="490" y="1339" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-30" value="Kirim notifikasi ke wali kelas" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="1523" as="sourcePoint"/>
-            <mxPoint x="1310" y="1523" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-31" value="Simpan riwayat notifikasi" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1310" y="1569" as="sourcePoint"/>
-            <mxPoint x="900" y="1569" as="targetPoint"/>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="iterasi-5-msg-32" value="Notifikasi tersimpan" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="900" y="1615" as="sourcePoint"/>
-            <mxPoint x="1310" y="1615" as="targetPoint"/>
+            <mxPoint x="490" y="1523" as="sourcePoint" />
+            <mxPoint x="1310" y="1523" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-act-32" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="1303" y="1605" width="14" height="22" as="geometry"/>
+          <mxGeometry x="1303" y="1605" width="14" height="22" as="geometry" />
         </mxCell>
         <mxCell id="iterasi-5-msg-33" value="Status verifikasi berhasil" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="490" y="1661" as="sourcePoint"/>
-            <mxPoint x="285" y="1661" as="targetPoint"/>
+            <mxPoint x="490" y="1661" as="sourcePoint" />
+            <mxPoint x="285" y="1661" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="iterasi-5-msg-34" value="Tampilkan status berhasil" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="285" y="1707" as="sourcePoint"/>
-            <mxPoint x="80" y="1707" as="targetPoint"/>
+            <mxPoint x="285" y="1707" as="sourcePoint" />
+            <mxPoint x="80" y="1707" as="targetPoint" />
           </mxGeometry>
         </mxCell>
       </root>

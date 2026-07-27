@@ -626,7 +626,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Tahun Ajaran 2024/2025 Genap',
+                  'Tahun Ajaran 2026/2027 Ganjil',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,

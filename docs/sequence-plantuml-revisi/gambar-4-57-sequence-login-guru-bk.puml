@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Login Guru BK
+
+actor "Guru BK" as Actor
+boundary "Halaman Login Mobile" as UI
+control "AuthController" as Auth
+entity "User" as User
+boundary "Dashboard Guru BK" as Dashboard
+
+Actor -> UI: Membuka aplikasi mobile
+UI --> Actor: Menampilkan halaman login
+Actor -> UI: Mengisi NIP dan password
+Actor -> UI: Menekan tombol masuk
+UI -> Auth: Mengirim data login
+Auth -> User: Validasi akun dan role Guru BK
+User --> Auth: Hasil validasi akun
+alt Akun valid sebagai Guru BK
+Auth --> UI: Login berhasil dan token dibuat
+UI -> Dashboard: Mengarahkan ke dashboard Guru BK
+Dashboard --> Actor: Menampilkan dashboard Guru BK
+else Akun tidak valid
+Auth --> UI: Login gagal
+UI --> Actor: Menampilkan pesan gagal login
+end
+@enduml

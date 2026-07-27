@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../data/models/journal_history.dart';
 import '../../data/repositories/journal_repository.dart';
+import '../../data/models/journal.dart';
 
 class JournalHistoryDetailPage extends StatefulWidget {
   final int journalId;
@@ -39,14 +40,24 @@ class _JournalHistoryDetailPageState extends State<JournalHistoryDetailPage> {
   static const Color _surfaceContainerHigh = Color(0xFFE2E7FF);
 
   final _repository = JournalRepository();
+  final _editMaterialController = TextEditingController();
   bool _isLoading = true;
+  bool _isSaving = false;
+  bool _isEditSheetOpen = false;
   String? _error;
+  String? _editCleanliness;
   JournalHistoryData? _detail;
 
   @override
   void initState() {
     super.initState();
     _loadDetail();
+  }
+
+  @override
+  void dispose() {
+    _editMaterialController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadDetail() async {
@@ -176,10 +187,689 @@ class _JournalHistoryDetailPageState extends State<JournalHistoryDetailPage> {
                     ),
                   ),
                 ),
+                if (_detail != null && !_isLoading && _error == null)
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _isSaving ? null : _openEditSheet,
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: _surfaceContainerHigh,
+                        ),
+                        child: _isSaving
+                            ? const Padding(
+                                padding: EdgeInsets.all(10),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: _primary,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.edit,
+                                color: _onSurface,
+                                size: 20,
+                              ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _openEditSheet() async {
+    final detail = _detail;
+    if (detail == null) return;
+
+    _editMaterialController.text = detail.material;
+    _editCleanliness = detail.cleanliness;
+    _isEditSheetOpen = true;
+
+    // Build the editable list from journal history first, then enrich it
+    // with the full class list when the schedule endpoint is available.
+    List<StudentAttendanceState>? sheetStudents = _studentsFromHistory(detail);
+    if (detail.scheduleId != null) {
+      try {
+        final studentsData = await _repository.getStudents(
+          detail.scheduleId!,
+          date: _historyDateParam(detail),
+        );
+        sheetStudents = studentsData.students
+            .map((s) => StudentAttendanceState.fromStudent(s))
+            .toList();
+
+        // Apply existing absensi status from detail using stable student ids.
+        for (final a in detail.absensi) {
+          final match = sheetStudents.firstWhere(
+            (ss) =>
+                ss.student.id == a.studentId ||
+                (a.nisn != null && ss.student.nisn == a.nisn) ||
+                (a.nis != null && ss.student.nis == a.nis),
+            orElse: () => StudentAttendanceState.fromStudent(
+              JournalStudent(
+                id: -1,
+                name: '',
+                nisn: '',
+                nis: '',
+                classId: 0,
+                statusAwal: 'none',
+                isLocked: false,
+                sudahScanGerbang: false,
+              ),
+            ),
+          );
+          if (match.student.id != -1) {
+            match.currentStatus = _statusFromJournalValue(a.status);
+            match.notes = _notesFromJournalValue(a.notes);
+          }
+        }
+      } catch (e) {
+        // Keep the history-based list available when the full class fetch fails.
+      }
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.85,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Edit Jurnal',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: _onSurface,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: _isSaving
+                              ? null
+                              : () => Navigator.pop(sheetContext),
+                          icon: const Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _editMaterialController,
+                      minLines: 4,
+                      maxLines: 7,
+                      decoration: InputDecoration(
+                        labelText: 'Materi Pelajaran',
+                        alignLabelWithHint: true,
+                        filled: true,
+                        fillColor: _surfaceContainerLow,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _normalizeCleanliness(_editCleanliness),
+                      decoration: InputDecoration(
+                        labelText: 'Kebersihan Kelas',
+                        filled: true,
+                        fillColor: _surfaceContainerLow,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'sudah_bersih',
+                          child: Text('Bersih'),
+                        ),
+                        DropdownMenuItem(value: 'kotor', child: Text('Kotor')),
+                      ],
+                      onChanged: _isSaving
+                          ? null
+                          : (value) {
+                              setSheetState(() => _editCleanliness = value);
+                            },
+                    ),
+                    const SizedBox(height: 24),
+                    if (sheetStudents != null) ...[
+                      Text(
+                        'Edit Kehadiran Siswa',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: _onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Ubah status siswa jika ada koreksi pada riwayat jurnal.',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: _onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 280,
+                        child: ListView.builder(
+                          itemCount: sheetStudents.length,
+                          itemBuilder: (ctx, i) {
+                            final s = sheetStudents![i];
+                            return _buildEditableAttendanceItem(
+                              state: s,
+                              enabled: !_isSaving && !s.student.isLocked,
+                              onChanged: (value) {
+                                if (value == null) return;
+                                setSheetState(() => s.currentStatus = value);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ] else ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: _surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              size: 18,
+                              color: _onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Data siswa tidak dapat dimuat. Anda masih dapat mengubah materi dan kebersihan kelas.',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: _onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton.icon(
+                        onPressed: _isSaving
+                            ? null
+                            : () => _saveEdit(
+                                  sheetContext,
+                                  setSheetState,
+                                  sheetStudents,
+                                ),
+                        icon: _isSaving
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.save),
+                        label: Text(_isSaving ? 'Menyimpan...' : 'Simpan'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                    ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() => _isEditSheetOpen = false);
+  }
+
+  Future<void> _saveEdit(
+    BuildContext sheetContext,
+    void Function(void Function()) setSheetState,
+    List<StudentAttendanceState>? sheetStudents,
+  ) async {
+    final material = _editMaterialController.text.trim();
+    if (material.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Materi pelajaran wajib diisi')),
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+    setSheetState(() {});
+
+    try {
+      final attendances = sheetStudents?.map((s) => s.toEntry()).toList();
+
+      await _repository.updateJournalHistory(
+        journalId: widget.journalId,
+        materi: material,
+        kebersihanKelas: _editCleanliness,
+        attendances: attendances,
+      );
+
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      if (_isEditSheetOpen) {
+        setSheetState(() {});
+        if (sheetContext.mounted) {
+          Navigator.pop(sheetContext);
+        }
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Jurnal berhasil diperbarui')),
+      );
+      await _loadDetail();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      if (_isEditSheetOpen) {
+        setSheetState(() {});
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+      );
+    }
+  }
+
+  Future<void> _openSingleAttendanceEdit(JournalHistoryAbsensi item) async {
+    final detail = _detail;
+    if (detail == null) return;
+
+    final resolvedStudentId = await _resolveStudentId(item, detail);
+    if (!mounted) return;
+
+    var selectedStatus = _statusFromJournalValue(item.status);
+    if (selectedStatus == StudentStatus.none) {
+      selectedStatus = StudentStatus.hadir;
+    }
+
+    final saved = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Edit Kehadiran',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: _onSurface,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _isSaving
+                              ? null
+                              : () => Navigator.pop(sheetContext, false),
+                          icon: const Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      item.studentName,
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: _onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'NIS: ${item.nis ?? '-'}',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: _onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    DropdownButtonFormField<StudentStatus>(
+                      value: selectedStatus,
+                      decoration: InputDecoration(
+                        labelText: 'Status Kehadiran',
+                        filled: true,
+                        fillColor: _surfaceContainerLow,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      items: StudentStatus.values
+                          .where((status) => status != StudentStatus.none)
+                          .map(
+                            (status) => DropdownMenuItem(
+                              value: status,
+                              child: Text(status.displayName),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: _isSaving
+                          ? null
+                          : (value) {
+                              if (value == null) return;
+                              setSheetState(() => selectedStatus = value);
+                            },
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton.icon(
+                        onPressed: _isSaving
+                            ? null
+                            : () async {
+                                setState(() => _isSaving = true);
+                                setSheetState(() {});
+
+                                try {
+                                  await _repository.updateJournalHistory(
+                                    journalId: widget.journalId,
+                                    materi: detail.material,
+                                    kebersihanKelas: detail.cleanliness,
+                                    attendances: [
+                                      StudentAttendanceEntry(
+                                        studentId: resolvedStudentId,
+                                        nis: item.nis,
+                                        nisn: item.nisn,
+                                        studentName: item.studentName,
+                                        status: selectedStatus.jsonValue,
+                                        notes: _notesFromJournalValue(
+                                          item.notes,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+
+                                  if (!mounted) return;
+                                  setState(() => _isSaving = false);
+                                  if (sheetContext.mounted) {
+                                    Navigator.pop(sheetContext, true);
+                                  }
+                                } catch (e) {
+                                  if (!mounted) return;
+                                  setState(() => _isSaving = false);
+                                  setSheetState(() {});
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        e
+                                            .toString()
+                                            .replaceAll('Exception: ', ''),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                        icon: _isSaving
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.save),
+                        label: Text(_isSaving ? 'Menyimpan...' : 'Simpan'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (!mounted) return;
+    if (saved == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Status kehadiran berhasil diperbarui')),
+      );
+      await _loadDetail();
+    }
+  }
+
+  Future<int> _resolveStudentId(
+    JournalHistoryAbsensi item,
+    JournalHistoryData detail,
+  ) async {
+    if (item.studentId > 0) return item.studentId;
+    if (detail.scheduleId == null) return 0;
+
+    try {
+      final studentsData = await _repository.getStudents(
+        detail.scheduleId!,
+        date: _historyDateParam(detail),
+      );
+
+      final itemNis = item.nis?.trim();
+      final itemNisn = item.nisn?.trim();
+      final itemName = item.studentName.trim().toLowerCase();
+
+      for (final student in studentsData.students) {
+        final sameId = student.id > 0 && student.id == item.studentId;
+        final sameNis =
+            itemNis != null && itemNis.isNotEmpty && student.nis == itemNis;
+        final sameNisn = itemNisn != null &&
+            itemNisn.isNotEmpty &&
+            student.nisn == itemNisn;
+        final sameName = student.name.trim().toLowerCase() == itemName;
+
+        if (sameId || sameNis || sameNisn || sameName) {
+          return student.id;
+        }
+      }
+    } catch (_) {
+      return 0;
+    }
+
+    return 0;
+  }
+
+  String? _normalizeCleanliness(String? value) {
+    final raw = (value ?? '').trim().toLowerCase();
+    if (raw == 'bersih' || raw == 'sudah_bersih') return 'sudah_bersih';
+    if (raw == 'kurang bersih' || raw == 'kotor') return 'kotor';
+    return null;
+  }
+
+  String _historyDateParam(JournalHistoryData detail) {
+    return detail.createdAt.length >= 10
+        ? detail.createdAt.substring(0, 10)
+        : widget.date;
+  }
+
+  StudentStatus _statusFromJournalValue(String status) {
+    switch (status) {
+      case 'KBM_Hadir':
+        return StudentStatus.hadir;
+      case 'KBM_Alpa':
+        return StudentStatus.alpa;
+      case 'KBM_Sakit':
+        return StudentStatus.sakit;
+      case 'KBM_Izin':
+        return StudentStatus.izin;
+      case 'KBM_Sakit_atau_Izin':
+        return StudentStatus.sakitAtauIzin;
+      default:
+        return StudentStatus.none;
+    }
+  }
+
+  List<String> _notesFromJournalValue(String? notes) {
+    final value = notes?.trim();
+    if (value == null || value.isEmpty) return [];
+
+    return value
+        .split(',')
+        .map((note) => note.trim())
+        .where((note) => note.isNotEmpty)
+        .toList();
+  }
+
+  List<StudentAttendanceState>? _studentsFromHistory(
+    JournalHistoryData detail,
+  ) {
+    final students = detail.absensi
+        .where((item) => item.studentId > 0)
+        .map(
+          (item) => StudentAttendanceState(
+            student: JournalStudent(
+              id: item.studentId,
+              name: item.studentName,
+              nisn: item.nisn ?? '',
+              nis: item.nis ?? '',
+              classId: 0,
+              statusAwal: item.status,
+              isLocked: false,
+              sudahScanGerbang: false,
+            ),
+            currentStatus: _statusFromJournalValue(item.status),
+            notes: _notesFromJournalValue(item.notes),
+          ),
+        )
+        .toList();
+
+    return students.isEmpty ? null : students;
+  }
+
+  Widget _buildEditableAttendanceItem({
+    required StudentAttendanceState state,
+    required bool enabled,
+    required ValueChanged<StudentStatus?> onChanged,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: _surfaceContainerLow,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: state.student.isLocked
+              ? const Color(0xFFFFC857)
+              : Colors.transparent,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  state.student.name,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: _onSurface,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  state.student.isLocked
+                      ? 'Dikunci oleh izin wali kelas'
+                      : 'NIS: ${state.student.nis.isEmpty ? '-' : state.student.nis}',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: _onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          DropdownButtonHideUnderline(
+            child: DropdownButton<StudentStatus>(
+              value: state.currentStatus,
+              borderRadius: BorderRadius.circular(14),
+              items: StudentStatus.values
+                  .where((status) => status != StudentStatus.none)
+                  .map(
+                    (status) => DropdownMenuItem(
+                      value: status,
+                      child: Text(status.displayName),
+                    ),
+                  )
+                  .toList(),
+              onChanged: enabled ? onChanged : null,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -438,77 +1128,98 @@ class _JournalHistoryDetailPageState extends State<JournalHistoryDetailPage> {
         .map((e) => e[0].toUpperCase())
         .join();
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _surfaceContainerLowest,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _isSaving ? null : () => _openSingleAttendanceEdit(item),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(5),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: _surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(5),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: _surfaceContainerHigh,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                initials.isEmpty ? 'S' : initials,
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.bold,
-                  color: _primary,
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: _surfaceContainerHigh,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    initials.isEmpty ? 'S' : initials,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.bold,
+                      color: _primary,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.studentName,
-                  style: GoogleFonts.inter(
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.studentName,
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        color: _onSurface,
+                      ),
+                    ),
+                    Text(
+                      'NIS: ${item.nis ?? '-'}',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: _onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Ketuk untuk edit status',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: _primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: statusColor.withAlpha(26),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  statusLabel,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: _onSurface,
+                    color: statusColor,
                   ),
                 ),
-                Text(
-                  'NIS: ${item.nis ?? '-'}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: _onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: statusColor.withAlpha(26),
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Text(
-              statusLabel,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: statusColor,
               ),
-            ),
+              const SizedBox(width: 6),
+              const Icon(Icons.edit, size: 16, color: _onSurfaceVariant),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

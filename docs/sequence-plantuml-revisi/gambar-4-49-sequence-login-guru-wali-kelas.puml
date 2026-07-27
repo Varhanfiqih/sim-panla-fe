@@ -1,0 +1,40 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Login Guru Wali Kelas
+
+actor "Guru Wali Kelas" as Actor
+boundary "Halaman Login Mobile" as UI
+control "AuthController" as Auth
+entity "User" as User
+entity "SchoolClass" as Class
+boundary "Dashboard Wali Kelas" as Dashboard
+
+Actor -> UI: Membuka aplikasi mobile
+UI --> Actor: Menampilkan halaman login
+Actor -> UI: Mengisi NIP dan password
+UI -> Auth: Mengirim data login
+Auth -> User: Validasi akun Guru
+Auth -> Class: Memeriksa kelas wali
+User --> Auth: Akun valid
+Class --> Auth: Data kelas wali
+alt Akun valid sebagai wali kelas
+Auth --> UI: Login berhasil dan token dibuat
+UI -> Dashboard: Mengarahkan ke dashboard Wali Kelas
+Dashboard --> Actor: Menampilkan dashboard Wali Kelas
+else Akun tidak valid
+Auth --> UI: Login gagal
+UI --> Actor: Menampilkan pesan gagal login
+end
+@enduml

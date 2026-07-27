@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Dashboard Super Admin
+
+actor "Super Admin" as Actor
+boundary "Dashboard Super Admin" as UI
+control "DashboardController" as Controller
+entity "User" as User
+entity "Model Statistik" as Stats
+
+Actor -> UI: Membuka dashboard
+UI -> Controller: Meminta ringkasan sistem
+Controller -> User: Memeriksa role Super Admin
+User --> Controller: Role valid
+Controller -> Stats: Mengambil ringkasan guru, siswa, kelas, dan jadwal
+Stats --> Controller: Data ringkasan sistem
+Controller --> UI: Mengirim data dashboard
+UI --> Actor: Menampilkan dashboard Super Admin
+@enduml

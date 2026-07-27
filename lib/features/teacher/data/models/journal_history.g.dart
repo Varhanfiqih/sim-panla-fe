@@ -75,7 +75,9 @@ Map<String, dynamic> _$JournalHistoryTimeSlotToJson(
 JournalHistoryAbsensi _$JournalHistoryAbsensiFromJson(
   Map<String, dynamic> json,
 ) => JournalHistoryAbsensi(
+  studentId: _toInt(json['student_id']),
   studentName: json['student_name'] as String,
+  nisn: json['nisn'] as String?,
   nis: json['nis'] as String?,
   status: json['status'] as String,
   notes: json['notes'] as String?,
@@ -84,7 +86,9 @@ JournalHistoryAbsensi _$JournalHistoryAbsensiFromJson(
 Map<String, dynamic> _$JournalHistoryAbsensiToJson(
   JournalHistoryAbsensi instance,
 ) => <String, dynamic>{
+  'student_id': instance.studentId,
   'student_name': instance.studentName,
+  'nisn': instance.nisn,
   'nis': instance.nis,
   'status': instance.status,
   'notes': instance.notes,

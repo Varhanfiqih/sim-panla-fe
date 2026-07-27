@@ -1,0 +1,39 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor #666666
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+autonumber
+
+title Sequence Diagram Kelola Data Master
+
+actor "Super Admin" as Actor
+boundary "Halaman Data Master" as UI
+control "Resource Controller" as Controller
+entity "User/Subject/Class Model" as Model
+
+Actor -> UI: Membuka menu data master
+UI -> Controller: Meminta daftar data master
+Controller -> Model: Mengambil data guru, staf, mapel, kelas, dan jadwal
+Model --> Controller: Data master
+Controller --> UI: Menampilkan data master
+Actor -> UI: Menambah atau mengubah data
+UI -> Controller: Mengirim data perubahan
+Controller -> Controller: Validasi input dan hak akses
+alt Data valid
+Controller -> Model: Menyimpan perubahan data master
+Model --> Controller: Data berhasil disimpan
+Controller --> UI: Mengirim status berhasil
+UI --> Actor: Menampilkan pesan berhasil
+else Data tidak valid
+Controller --> UI: Mengirim pesan validasi
+UI --> Actor: Menampilkan pesan kesalahan
+end
+@enduml
